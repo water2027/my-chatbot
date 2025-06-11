@@ -41,7 +41,6 @@ export default function Home() {
         </div>
         {/* 对话列表 */}
         <div>
-          
         </div>
         {/* 输入框 */}
         <form className="mt-auto mx-auto bg-amber-800 w-2/3 flex flex-row">

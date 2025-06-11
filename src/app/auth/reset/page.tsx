@@ -47,15 +47,15 @@ const LoginPage: React.FC = () => {
   }
 
   const handleLogin = () => {
-    const formDataObj = form.reduce((acc, field) => {
-      acc[field.id] = field.value
-      return acc
-    }, {} as Record<string, string>)
+    // const formDataObj = form.reduce((acc, field) => {
+    //   acc[field.id] = field.value
+    //   return acc
+    // }, {} as Record<string, string>)
 
-    console.log('Login data:', {
-      ...formDataObj,
-      rememberMe,
-    })
+    // console.log('Login data:', {
+    //   ...formDataObj,
+    //   rememberMe,
+    // })
   }
 
   return (

@@ -33,15 +33,15 @@ const LoginPage: React.FC = () => {
   }
 
   const handleLogin = () => {
-    const formDataObj = form.reduce((acc, field) => {
-      acc[field.id] = field.value
-      return acc
-    }, {} as Record<string, string>)
+    // const formDataObj = form.reduce((acc, field) => {
+    //   acc[field.id] = field.value
+    //   return acc
+    // }, {} as Record<string, string>)
 
-    console.log('Login data:', {
-      ...formDataObj,
-      rememberMe,
-    })
+    // console.log('Login data:', {
+    //   ...formDataObj,
+    //   rememberMe,
+    // })
 
   }
 
@@ -60,7 +60,7 @@ const LoginPage: React.FC = () => {
           onChange={e => setRememberMe(e.target.checked)}
           className="mr-2"
         />
-        <label className='text-black'>记住我</label>
+        <label className="text-black">记住我</label>
       </div>
 
       <div className="flex flex-row justify-around">
