@@ -4,8 +4,10 @@ import type { FormEvent } from 'react'
 import type { ChatCardProps } from '@/components/ChatCard'
 import { useState } from 'react'
 import ChatCard from '@/components/ChatCard'
+import StreamChat from '@/components/StreamCard'
 
 export default function Home() {
+  const [message, setMessage] = useState<string>('')
   const [chatHistory, setChatHistory] = useState<ChatCardProps[]>([
     {
       chatId: '1',
@@ -63,12 +65,13 @@ export default function Home() {
     event.preventDefault()
     const form = event.currentTarget
     const formData = new FormData(form)
-    const message = formData.get('message') as string
-    if (!message) {
+    const msg = formData.get('message') as string
+    if (!msg) {
       return
     }
     console.log('Sending message to AI:', message)
-    setChatHistory([...chatHistory, { chatId: '11', role: 'user', content: message }])
+    setMessage(msg)
+    setChatHistory([...chatHistory, { chatId: '11', role: 'user', content: msg }])
     form.reset()
   }
 
@@ -117,7 +120,7 @@ export default function Home() {
           {chatHistory.map(chat => (
             <ChatCard key={chat.chatId} role={chat.role} content={chat.content} />
           ))}
-          
+          <StreamChat message={message} />
         </div>
         {/* 输入框 */}
         <form onSubmit={sendMessageToAi} className="mt-auto mx-auto bg-amber-800 w-2/3 flex flex-row">

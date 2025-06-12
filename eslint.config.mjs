@@ -4,6 +4,6 @@ export default antfu({
   formatters: true,
   react: true,
   rules: {
-    'no-console': ['error', { allow: ['log']}],
+    'no-console': ['error', { allow: ['log', 'error']}],
   }
 })
