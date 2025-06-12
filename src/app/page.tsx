@@ -35,21 +35,20 @@ export default function Home() {
     form.reset()
 
     sendToAI([...currentChat.messages, userMessage], model, setContent)
-    .then(newMessage => {
-      if(!newMessage) {
-        console.error('No message returned from AI')
-        return
-      }
-      setCurrentChat(prev => ({
-        ...prev,
-        messages: [...prev.messages, {
-          role: 'assistant',
-          content: newMessage,
-        }],
-      }))
-      setContent('')
-    })
-
+      .then((newMessage) => {
+        if (!newMessage) {
+          console.error('No message returned from AI')
+          return
+        }
+        setCurrentChat(prev => ({
+          ...prev,
+          messages: [...prev.messages, {
+            role: 'assistant',
+            content: newMessage,
+          }],
+        }))
+        setContent('')
+      })
   }
 
   return (
@@ -58,7 +57,7 @@ export default function Home() {
       <main className="w-full bg-amber-300 h-full flex flex-col py-2 pl-16 md:px-4">
         {/* 头部栏, 放头像和模型选择 */}
         <div className="flex flex-row justify-between">
-          <select name="model" id="model" onInput={e => {model = (e.target as HTMLSelectElement).value}}>
+          <select name="model" id="model" onInput={(e) => { model = (e.target as HTMLSelectElement).value }}>
             {models.map(model => (
               <option key={model} value={model}>{model}</option>
             ))}

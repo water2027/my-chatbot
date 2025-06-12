@@ -1,4 +1,3 @@
-
 export interface ChatCardProps {
   chatId?: string
   role: 'user' | 'assistant' | 'system'

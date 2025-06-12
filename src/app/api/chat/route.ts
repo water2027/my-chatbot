@@ -7,7 +7,8 @@ const openai = new OpenAI({
 })
 
 export async function POST(request: Request) {
-  if(!openai.apiKey || !openai.baseURL) return
+  if (!openai.apiKey || !openai.baseURL)
+    return
 
   const { messages, model } = await request.json()
 
