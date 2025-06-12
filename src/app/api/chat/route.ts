@@ -9,12 +9,11 @@ const openai = new OpenAI({
 export async function POST(request: Request) {
   if(!openai.apiKey || !openai.baseURL) return
 
-  const { message } = await request.json()
-  console.log('Received message:', message)
+  const { messages, model } = await request.json()
 
   const stream = await openai.chat.completions.create({
-    model: 'gpt-4o-mini',
-    messages: [{ role: 'user', content: message }],
+    model,
+    messages,
     stream: true,
   })
 

@@ -1,67 +1,23 @@
 // 事已至此, 暂时纯客户端吧
 'use client'
 import type { FormEvent } from 'react'
-import type { ChatCardProps } from '@/components/ChatCard'
+import type { ChatHistory } from '@/types/chat'
+import type { Message } from '@/types/message'
 import { useState } from 'react'
 import ChatCard from '@/components/ChatCard'
-import StreamChat from '@/components/StreamCard'
+import HistoryAside from '@/components/HistoryAside'
 
 export default function Home() {
-  const [message, setMessage] = useState<string>('')
-  const [chatHistory, setChatHistory] = useState<ChatCardProps[]>([
-    {
-      chatId: '1',
-      role: 'user',
-      content: '你好，AI！',
-    },
-    {
-      chatId: '2',
-      role: 'assistant',
-      content: '你好！有什么我可以帮助你的吗？aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
-    },
-    {
-      chatId: '3',
-      role: 'user',
-      content: '请告诉我今天的天气。',
-    },
-    {
-      chatId: '4',
-      role: 'assistant',
-      content: '今天的天气晴朗，适合外出。',
-    },
-    {
-      chatId: '5',
-      role: 'user',
-      content: '我想知道明天的新闻。',
-    },
-    {
-      chatId: '6',
-      role: 'assistant',
-      content: '明天的新闻将包括最新的科技动态和国际新闻。',
-    },
-    {
-      chatId: '7',
-      role: 'user',
-      content: '请推荐一本好书。',
-    },
-    {
-      chatId: '8',
-      role: 'assistant',
-      content: '我推荐《时间简史》，这是一本关于宇宙和物理学的经典著作。',
-    },
-    {
-      chatId: '9',
-      role: 'user',
-      content: '谢谢你的推荐！',
-    },
-    {
-      chatId: '10',
-      role: 'assistant',
-      content: '不客气！如果还有其他问题，随时问我。',
-    },
-  ])
+  const models = ['gpt-4o-mini']
+  const [model, setModel] = useState<string>(models[0])
+  // const [chatHistory, setChatHistory] = useState<ChatCardProps[]>([])
+  const [currentChat, setCurrentChat] = useState<ChatHistory>({
+    id: '0',
+    messages: [],
+  })
+  let [content, setContent] = useState<string>('')
 
-  const sendMessageToAi = (event: FormEvent<HTMLFormElement>) => {
+  const sendMessageToAi = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault()
     const form = event.currentTarget
     const formData = new FormData(form)
@@ -69,47 +25,62 @@ export default function Home() {
     if (!msg) {
       return
     }
-    console.log('Sending message to AI:', message)
-    setMessage(msg)
-    setChatHistory([...chatHistory, { chatId: '11', role: 'user', content: msg }])
+    const userMessage: Message = { role: 'user', content: msg }
+    setCurrentChat(prev => ({
+      ...prev,
+      messages: [...prev.messages, userMessage],
+    }))
     form.reset()
+
+    fetch('/api/chat', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ messages: [...currentChat.messages, userMessage], model }),
+    }).then(async (res) => {
+      const reader = res.body?.getReader()
+      const decoder = new TextDecoder()
+
+      if (!reader) {
+        console.error('No reader available')
+        return
+      }
+
+      while (true) {
+        const { done, value } = await reader.read()
+
+        if (done) {
+          console.log('Stream completed')
+          break
+        }
+
+        const data = decoder.decode(value)
+        content += data
+        setContent(prev => prev + data)
+      }
+      setContent('')
+      setCurrentChat(prev => ({
+        ...prev,
+        messages: [...prev.messages, {
+          role: 'assistant',
+          content,
+        }],
+      }))
+    })
+
   }
 
   return (
     <div className="w-full h-full flex flex-row">
-      <aside className="relative w-0 md:w-1/20 h-full hover:w-1/5 overflow-x-visible transition-all duration-300 after:w-full after:h-full after:absolute after:top-0 after:left-0 after:bg-black">
-        <div className="w-10 h-10">
-          {/* 展开按钮 */}
-          <button
-            type="button"
-            className="relative w-full h-full z-10 flex flex-col justify-center items-center space-y-1.5 rounded-full transition-all duration-300 hover:bg-indigo-100 hover:backdrop-opacity-50"
-            aria-label="Toggle menu"
-          >
-            <div
-              className="w-6 h-0.5 bg-white transition-all duration-300 ease-in-out"
-            >
-            </div>
-
-            <div
-              className="w-6 h-0.5 bg-white transition-all duration-300 ease-in-out"
-            >
-            </div>
-
-            <div
-              className="w-6 h-0.5 bg-white transition-all duration-300 ease-in-out"
-            >
-            </div>
-          </button>
-          <div>
-            {/* 聊天记录 */}
-          </div>
-        </div>
-      </aside>
+      <HistoryAside />
       <main className="w-full bg-amber-300 h-full flex flex-col py-2 pl-16 md:px-4">
         {/* 头部栏, 放头像和模型选择 */}
         <div className="flex flex-row justify-between">
-          <select name="model" id="model">
-            <option value="gpt-4">gpt-4</option>
+          <select name="model" id="model" onSelect={e => setModel((e.target as HTMLSelectElement).value)}>
+            {models.map(model => (
+              <option key={model} value={model}>{model}</option>
+            ))}
           </select>
           {/* <div className="flex items-center justify-center w-5 h-5 rounded-full bg-amber-50 p-5 text-c">
             水
@@ -117,10 +88,13 @@ export default function Home() {
         </div>
         {/* 对话列表 */}
         <div className="custom-scrollbar h-80vh overflow-y-auto px-8">
-          {chatHistory.map(chat => (
-            <ChatCard key={chat.chatId} role={chat.role} content={chat.content} />
+          {currentChat.messages.map((chat, index) => (
+            // eslint-disable-next-line react/no-array-index-key
+            <ChatCard key={`${currentChat.id}-${index}`} role={chat.role} content={chat.content} />
           ))}
-          <StreamChat message={message} />
+          <div className={content ? '' : 'hidden'}>
+            <ChatCard role="assistant" content={content} />
+          </div>
         </div>
         {/* 输入框 */}
         <form onSubmit={sendMessageToAi} className="mt-auto mx-auto bg-amber-800 w-2/3 flex flex-row">
