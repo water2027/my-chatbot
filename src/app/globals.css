@@ -28,3 +28,28 @@ body {
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
 }
+
+.custom-scrollbar {
+  /* Firefox 兼容性 */
+  scrollbar-width: thin; /* 可以是 'auto', 'thin', 'none' */
+  scrollbar-color: #a0aec0 #f1f1f1; /* 滑块颜色 轨道颜色 */
+}
+
+/* 针对 WebKit 浏览器 (Chrome, Safari, Edge) */
+.custom-scrollbar::-webkit-scrollbar {
+  width: 8px; /* 滚动条整体宽度 */
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: #f1f1f1; /* 轨道背景色 */
+  border-radius: 10px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: #a0aec0; /* 滑块颜色 */
+  border-radius: 10px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: #718096; /* 鼠标悬停时滑块的颜色 */
+}
