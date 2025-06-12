@@ -8,14 +8,15 @@ import ChatCard from '@/components/ChatCard'
 import HistoryAside from '@/components/HistoryAside'
 
 export default function Home() {
-  const models = ['gpt-4o-mini']
-  const [model, setModel] = useState<string>(models[0])
+  const models = ['gpt-4o-mini', 'gpt-4']
+  let model = models[0]
+  // const [model, setModel] = useState<string>(models[0])
   // const [chatHistory, setChatHistory] = useState<ChatCardProps[]>([])
   const [currentChat, setCurrentChat] = useState<ChatHistory>({
     id: '0',
     messages: [],
   })
-  let [content, setContent] = useState<string>('')
+  const [content, setContent] = useState<string>('')
 
   const sendMessageToAi = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault()
@@ -47,6 +48,7 @@ export default function Home() {
         return
       }
 
+      let text = ''
       while (true) {
         const { done, value } = await reader.read()
 
@@ -56,17 +58,17 @@ export default function Home() {
         }
 
         const data = decoder.decode(value)
-        content += data
+        text += data
         setContent(prev => prev + data)
       }
-      setContent('')
       setCurrentChat(prev => ({
         ...prev,
         messages: [...prev.messages, {
           role: 'assistant',
-          content,
+          content: text,
         }],
       }))
+      setContent('')
     })
 
   }
@@ -77,7 +79,7 @@ export default function Home() {
       <main className="w-full bg-amber-300 h-full flex flex-col py-2 pl-16 md:px-4">
         {/* 头部栏, 放头像和模型选择 */}
         <div className="flex flex-row justify-between">
-          <select name="model" id="model" onSelect={e => setModel((e.target as HTMLSelectElement).value)}>
+          <select name="model" id="model" onInput={e => {model = (e.target as HTMLSelectElement).value}}>
             {models.map(model => (
               <option key={model} value={model}>{model}</option>
             ))}
