@@ -6,6 +6,7 @@ import type { Message } from '@/types/message'
 import { useState } from 'react'
 import ChatCard from '@/components/ChatCard'
 import HistoryAside from '@/components/HistoryAside'
+import { sendToAI } from '@/utils/sendToAI'
 
 export default function Home() {
   const models = ['gpt-4o-mini', 'gpt-4']
@@ -33,39 +34,17 @@ export default function Home() {
     }))
     form.reset()
 
-    fetch('/api/chat', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ messages: [...currentChat.messages, userMessage], model }),
-    }).then(async (res) => {
-      const reader = res.body?.getReader()
-      const decoder = new TextDecoder()
-
-      if (!reader) {
-        console.error('No reader available')
+    sendToAI([...currentChat.messages, userMessage], model, setContent)
+    .then(newMessage => {
+      if(!newMessage) {
+        console.error('No message returned from AI')
         return
-      }
-
-      let text = ''
-      while (true) {
-        const { done, value } = await reader.read()
-
-        if (done) {
-          console.log('Stream completed')
-          break
-        }
-
-        const data = decoder.decode(value)
-        text += data
-        setContent(prev => prev + data)
       }
       setCurrentChat(prev => ({
         ...prev,
         messages: [...prev.messages, {
           role: 'assistant',
-          content: text,
+          content: newMessage,
         }],
       }))
       setContent('')
