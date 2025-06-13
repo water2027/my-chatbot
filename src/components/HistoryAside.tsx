@@ -50,21 +50,21 @@ export default function HistoryAside({
   return (
     <aside
       className={`
-        relative h-full w-1/20 bg-gray-900 border-r border-gray-700 transition-all duration-300 ease-in-out
-        hover:w-80 group
+        h-full w-0 md:w-1/20 bg-gray-900 border-r border-gray-700 transition-all duration-300 ease-in-out
+        hover:w-80 group ${isExpanded? 'absolute w-4/5 md:relative md:w-80': ''}
       `}
     >
       {/* 展开按钮 */}
-      <div className="sticky top-0 z-10 bg-gray-900 p-3 border-b border-gray-700">
+      <div className="sticky top-0 z-10 p-3 border-b border-gray-700">
         <button
           type="button"
-          className="w-6 h-6 flex flex-col justify-center items-center space-y-1 transition-all duration-300 hover:bg-gray-700 hover:rounded-md p-1"
+          className="w-6 h-6 flex flex-col justify-center items-center space-y-1 transition-all duration-300 focus:outline-none hover:bg-gray-700 hover:rounded-md p-1"
           aria-label="切换菜单"
           onClick={() => setIsExpanded(!isExpanded)}
         >
-          <div className="w-4 h-0.5 bg-gray-300 transition-all duration-300"></div>
-          <div className="w-4 h-0.5 bg-gray-300 transition-all duration-300"></div>
-          <div className="w-4 h-0.5 bg-gray-300 transition-all duration-300"></div>
+          <div className="w-4 h-0.5 bg-amber-600 transition-all duration-300"></div>
+          <div className="w-4 h-0.5 bg-amber-600 transition-all duration-300"></div>
+          <div className="w-4 h-0.5 bg-amber-600 transition-all duration-300"></div>
         </button>
       </div>
 
@@ -94,7 +94,6 @@ export default function HistoryAside({
                       type="button"
                       className={`
                           w-full text-left p-3 pr-12 rounded-lg transition-all duration-200
-                          focus:bg-gray-700 focus:outline-none
                           ${currentChatId === chat.id ? 'bg-gray-700 border-l-2 border-blue-500' : ''}
                         `}
                     >
@@ -113,7 +112,7 @@ export default function HistoryAside({
                     {/* 删除按钮 */}
                     <button
                       type="button"
-                      className="delete-button absolute right-2 top-1/2 transform -translate-y-1/2 w-6 h-6 flex items-center justify-center text-gray-400 hover:text-red-400 hover:bg-red-900/20 rounded opacity-0 group-hover/item:opacity-100 transition-all duration-200"
+                      className="delete-button absolute right-2 top-1/2 transform -translate-y-1/2 w-6 h-6 flex items-center justify-center text-gray-400 hover:text-red-400 hover:bg-red-900/20 rounded transition-all duration-200"
                       onClick={e => handleDeleteChat(e, chat.id)}
                       aria-label="删除对话"
                     >
@@ -134,7 +133,7 @@ export default function HistoryAside({
       {/* 底部操作 */}
       <div className={`
         sticky bottom-0 left-0 right-0 p-3 border-t border-gray-700 bg-gray-900
-        transition-opacity duration-300
+        transition-opacity duration-300 ${isExpanded? '' : 'hidden md:block'}
       `}
       >
         <button
