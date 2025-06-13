@@ -1,8 +1,13 @@
+import MarkdownIt from 'markdown-it'
+
 export interface ChatCardProps {
   chatId?: string
   role: 'user' | 'assistant' | 'system'
   content: string
+  markdown: boolean
 }
+
+import 'github-markdown-css'
 
 // 为不同角色定义配置，方便管理样式和信息
 const roleConfig = {
@@ -36,8 +41,32 @@ const roleConfig = {
   },
 }
 
-export default function ChatCard({ role, content }: ChatCardProps) {
+const md = new MarkdownIt({
+  html: true,
+  linkify: true,
+  typographer: true,
+})
+
+export default function ChatCard({ role, content, markdown }: ChatCardProps) {
   const config = roleConfig[role]
+
+  const renderedContent = () => {
+    if (!markdown) {
+      return (
+        <div className="whitespace-pre-wrap">{content}</div>
+      )
+    }
+
+    const htmlContent = md.render(content)
+
+    return (
+      <div
+        className="prose prose-sm max-w-none prose-headings:text-inherit prose-p:text-inherit prose-strong:text-inherit prose-em:text-inherit prose-code:text-inherit prose-pre:bg-black/10 prose-pre:text-inherit"
+        // eslint-disable-next-line react-dom/no-dangerously-set-innerhtml
+        dangerouslySetInnerHTML={{ __html: htmlContent }}
+      />
+    )
+  }
 
   return (
     // 外层容器，控制整行消息是靠左还是靠右 (justify-start/end)
@@ -57,9 +86,9 @@ export default function ChatCard({ role, content }: ChatCardProps) {
 
         {/* 内容气泡 */}
         <div
-          className={`p-3 rounded-lg max-w-md lg:max-w-xl break-words shadow-md ${config.bubbleClass}`}
+          className={`p-3 rounded-lg max-w-md lg:max-w-xl break-words shadow-md ${config.bubbleClass} ${markdown ? 'markdown-body' : ''}`}
         >
-          {content}
+          {renderedContent()}
         </div>
 
       </div>

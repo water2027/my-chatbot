@@ -181,10 +181,10 @@ export default function Home() {
         <div className="custom-scrollbar h-80vh overflow-y-auto px-8">
           {currentChat.messages.map((chat, index) => (
             // eslint-disable-next-line react/no-array-index-key
-            <ChatCard key={`${currentChat.id}-${index}`} role={chat.role} content={chat.content} />
+            <ChatCard markdown={true} key={`${currentChat.id}-${index}`} role={chat.role} content={chat.content} />
           ))}
           <div className={content ? '' : 'hidden'}>
-            <ChatCard role="assistant" content={content} />
+            <ChatCard markdown={false} role="assistant" content={content} />
           </div>
         </div>
         {/* 输入框 */}
