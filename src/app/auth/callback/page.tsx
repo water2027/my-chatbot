@@ -1,10 +1,11 @@
 'use client'
 
 import { useRouter, useSearchParams } from 'next/navigation'
+import { Suspense } from 'react'
 import { useEffect, useState } from 'react'
 import { supabase } from '@/utils/supabase'
 
-export default function LoginCallback() {
+function LoginCallbackContent() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const [error, setError] = useState<string | null>(null)
@@ -20,7 +21,6 @@ export default function LoginCallback() {
           return
         }
         if (data.session) {
-          // const user = data.session.user
           const accessToken = data.session.access_token
           const refreshToken = data.session.refresh_token
           localStorage.setItem('access_token', accessToken)
@@ -69,5 +69,21 @@ export default function LoginCallback() {
         <p className="mt-4 text-gray-600">认证中...</p>
       </div>
     </div>
+  )
+}
+
+export default function LoginCallback() {
+  return (
+    <Suspense fallback={(
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mx-auto"></div>
+          <p className="mt-4 text-gray-600">加载中...</p>
+        </div>
+      </div>
+    )}
+    >
+      <LoginCallbackContent />
+    </Suspense>
   )
 }
