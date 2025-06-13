@@ -1,18 +1,19 @@
+import { useUserStore } from '@/store/userStore'
 import { supabase } from './supabase'
 
 async function refreshToken() {
   try {
-    const refreshToken = localStorage.getItem('refresh_token')
+    const { userInfo, clearUserInfo, setUserInfo } = useUserStore.getState()
+    const { refreshToken } = userInfo!
     if (!refreshToken) {
       return null
     }
 
-    const { data, error } = await supabase.auth.refreshSession()
+    const { data, error } = await supabase.auth.refreshSession({ refresh_token: refreshToken })
 
     if (error) {
       console.error('token刷新失败了', error.message)
-      localStorage.removeItem('access_token')
-      localStorage.removeItem('refresh_token')
+      clearUserInfo()
       return null
     }
 
@@ -21,9 +22,9 @@ async function refreshToken() {
       const newAccessToken = session.access_token
       const newRefreshToken = session.refresh_token
 
-      localStorage.setItem('access_token', newAccessToken)
+      setUserInfo({ accessToken: newAccessToken, refreshToken })
       if (newRefreshToken) {
-        localStorage.setItem('refresh_token', newRefreshToken)
+        setUserInfo({ accessToken: newAccessToken, refreshToken: newRefreshToken })
       }
 
       return newAccessToken
@@ -40,7 +41,10 @@ export default async function request(url: string, requestInit: RequestInit, ret
   if (url.startsWith('/')) {
     url = process.env.NEXT_PUBLIC_API_URL + url
   }
-  const token = localStorage.getItem('access_token')
+  console.log('request url', url)
+  const { userInfo } = useUserStore.getState()
+  console.log('request', url, requestInit, userInfo)
+  const { accessToken: token } = userInfo!
   if (token) {
     requestInit = {
       ...requestInit,

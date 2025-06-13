@@ -5,15 +5,16 @@ import type { ChatHistory } from '@/types/chat'
 import type { Message } from '@/types/message'
 import { useRouter } from 'next/navigation'
 import { useEffect, useState } from 'react'
+import AvatarSection from '@/components/AvatarSection'
 import ChatCard from '@/components/ChatCard'
 import HistoryAside from '@/components/HistoryAside'
+import { useUserStore } from '@/store/userStore'
 import { sendToAI } from '@/utils/sendToAI'
 
 export default function Home() {
   const models = ['gpt-4o-mini', 'gpt-4']
   let model = models[0]
   const [latestId, setLatestId] = useState(0)
-  // TODO: 将latestId放进去
   const [chatHistory, setChatHistory] = useState<{
     [key: string]: ChatHistory
   }>({})
@@ -22,7 +23,9 @@ export default function Home() {
     messages: [],
   })
   const [content, setContent] = useState<string>('')
+  const { userInfo, clearUserInfo } = useUserStore()
   const router = useRouter()
+  const isLogin = !!(userInfo?.accessToken && userInfo?.refreshToken)
 
   useEffect(() => {
     const handleBeforeUnload = () => {
@@ -143,10 +146,18 @@ export default function Home() {
     }
   }
 
+  const onLoginClick = () => {
+    router.push('/auth/login')
+  }
+
+  const onLogoutClick = () => {
+    clearUserInfo()
+  }
+
   return (
     <div className="w-full h-full flex flex-row">
       <HistoryAside onDeleteChat={deleteChat} onAddNewChat={addNewChat} onSelectChat={selectChat} currentChatId={currentChat.id} history={chatHistory} />
-      <main className="w-full h-full flex flex-col py-2 pl-16 md:pl-8">
+      <main className="w-full h-full flex flex-col py-2 pl-16 pr-4 md:pl-8">
         {/* 头部栏, 放头像和模型选择 */}
         <div className="flex flex-row justify-between">
           <select name="model" id="model" onInput={(e) => { model = (e.target as HTMLSelectElement).value }}>
@@ -154,6 +165,17 @@ export default function Home() {
               <option key={model} value={model}>{model}</option>
             ))}
           </select>
+          <AvatarSection isOnline={isLogin} onLoginClick={onLoginClick} onLogoutClick={onLogoutClick} />
+          {/* <div className="group flex flex-col items-center flex-shrink-0">
+            <div
+              className="w-9 h-9 rounded-full flex items-center justify-center font-bold text-sm p-8 bg-teal-200 text-teal-800"
+            >
+              离线
+            </div>
+            <div className="hidden group-hover:block">
+              <Link href="/auth/login">登录</Link>
+            </div>
+          </div> */}
         </div>
         {/* 对话列表 */}
         <div className="custom-scrollbar h-80vh overflow-y-auto px-8">

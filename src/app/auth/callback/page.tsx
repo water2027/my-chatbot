@@ -3,12 +3,14 @@
 import { useRouter, useSearchParams } from 'next/navigation'
 import { Suspense } from 'react'
 import { useEffect, useState } from 'react'
+import { useUserStore } from '@/store/userStore'
 import { supabase } from '@/utils/supabase'
 
 function LoginCallbackContent() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const [error, setError] = useState<string | null>(null)
+  const { userInfo, setUserInfo } = useUserStore()
 
   useEffect(() => {
     const handleAuthCallback = async () => {
@@ -23,9 +25,9 @@ function LoginCallbackContent() {
         if (data.session) {
           const accessToken = data.session.access_token
           const refreshToken = data.session.refresh_token
-          localStorage.setItem('access_token', accessToken)
+          setUserInfo({ accessToken, refreshToken: userInfo?.refreshToken || '' })
           if (refreshToken) {
-            localStorage.setItem('refresh_token', refreshToken)
+            setUserInfo({ accessToken, refreshToken })
           }
 
           const redirectTo = searchParams.get('redirect') || '/'
@@ -42,6 +44,7 @@ function LoginCallbackContent() {
     }
 
     handleAuthCallback()
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [router, searchParams])
 
   if (error) {

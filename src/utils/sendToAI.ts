@@ -1,5 +1,5 @@
 import type { Message } from '@/types/message'
-import request from './useRequest'
+import request from './request'
 
 export async function sendToAI(messages: Message[], model: string, callback: (content: any) => void) {
   const res = await request('/chat', {
