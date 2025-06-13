@@ -87,6 +87,18 @@ export default function Home() {
     selectChat(newChat.id)
   }
 
+  const deleteChat = (chatId: string) => {
+    if (chatId === currentChat.id) {
+      setCurrentChat({
+        id: '-1',
+        messages: [],
+      })
+    }
+    const newHistory = { ...chatHistory }
+    delete newHistory[chatId]
+    setChatHistory(newHistory)
+  }
+
   const sendMessageToAi = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault()
     const form = event.currentTarget
@@ -122,7 +134,7 @@ export default function Home() {
 
   return (
     <div className="w-full h-full flex flex-row">
-      <HistoryAside onAddNewChat={addNewChat} onSelectChat={selectChat} currentChatId={currentChat.id} history={chatHistory} />
+      <HistoryAside onDeleteChat={deleteChat} onAddNewChat={addNewChat} onSelectChat={selectChat} currentChatId={currentChat.id} history={chatHistory} />
       <main className="w-full bg-amber-300 h-full flex flex-col py-2 pl-16 md:px-4">
         {/* 头部栏, 放头像和模型选择 */}
         <div className="flex flex-row justify-between">
