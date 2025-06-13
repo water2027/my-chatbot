@@ -7,6 +7,7 @@ export interface ChatHistoryProps {
     [key: string]: ChatHistory
   }
   onSelectChat: (chatId: string) => void
+  onAddNewChat: () => void
   currentChatId: string
 }
 
@@ -14,13 +15,15 @@ export default function HistoryAside({
   history,
   onSelectChat,
   currentChatId,
+  onAddNewChat,
 }: ChatHistoryProps) {
   const [isExpanded, setIsExpanded] = useState(false)
 
   const handleChatSelect = (event: MouseEvent) => {
     const el = event.target as HTMLLIElement
-    const id = el.id;
-    if (!el || !id) return
+    const id = el.id
+    if (!el || !id)
+      return
     onSelectChat(id)
   }
 
@@ -107,7 +110,7 @@ export default function HistoryAside({
         <button
           type="button"
           className="w-8 py-2 px-3 text-sm text-gray-300 hover:text-white hover:bg-gray-700 rounded-lg transition-colors duration-200"
-          onClick={() => { /* 新建对话逻辑 */ }}
+          onClick={onAddNewChat}
         >
           +
         </button>
