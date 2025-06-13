@@ -1,9 +1,9 @@
 'use client'
 
-import { useState } from 'react'
-import { supabase } from '@/utils/supabase'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
+import { useState } from 'react'
+import { supabase } from '@/utils/supabase'
 
 export default function RegisterPage() {
   const [email, setEmail] = useState('')
@@ -44,8 +44,8 @@ export default function RegisterPage() {
         email,
         password,
         options: {
-          emailRedirectTo: `${window.location.origin}/auth/callback`
-        }
+          emailRedirectTo: `${window.location.origin}/auth/callback`,
+        },
       })
 
       if (error) {
@@ -54,12 +54,15 @@ export default function RegisterPage() {
 
       if (data.user && !data.user.email_confirmed_at) {
         setSuccess(true)
-      } else if (data.user && data.user.email_confirmed_at) {
+      }
+      else if (data.user && data.user.email_confirmed_at) {
         router.push('/')
       }
-    } catch (error: any) {
+    }
+    catch (error: any) {
       setError(error.message || 'Registration failed')
-    } finally {
+    }
+    finally {
       setLoading(false)
     }
   }
@@ -72,14 +75,15 @@ export default function RegisterPage() {
       const { error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
-          redirectTo: `${window.location.origin}/auth/callback`
-        }
+          redirectTo: `${window.location.origin}/auth/callback`,
+        },
       })
 
       if (error) {
         throw error
       }
-    } catch (error: any) {
+    }
+    catch (error: any) {
       setError(error.message || 'Google registration failed')
       setLoading(false)
     }
@@ -123,7 +127,8 @@ export default function RegisterPage() {
             创建新账户
           </h2>
           <p className="mt-2 text-center text-sm text-gray-600">
-            已有账户？{' '}
+            已有账户？
+            {' '}
             <Link href="/login" className="font-medium text-indigo-600 hover:text-indigo-500">
               立即登录
             </Link>
@@ -143,7 +148,7 @@ export default function RegisterPage() {
                 autoComplete="email"
                 required
                 value={email}
-                onChange={(e) => setEmail(e.target.value)}
+                onChange={e => setEmail(e.target.value)}
                 className="mt-1 appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
                 placeholder="请输入邮箱地址"
               />
@@ -160,7 +165,7 @@ export default function RegisterPage() {
                 autoComplete="new-password"
                 required
                 value={password}
-                onChange={(e) => setPassword(e.target.value)}
+                onChange={e => setPassword(e.target.value)}
                 className="mt-1 appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
                 placeholder="请输入密码（至少6位）"
               />
@@ -177,7 +182,7 @@ export default function RegisterPage() {
                 autoComplete="new-password"
                 required
                 value={confirmPassword}
-                onChange={(e) => setConfirmPassword(e.target.value)}
+                onChange={e => setConfirmPassword(e.target.value)}
                 className="mt-1 appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
                 placeholder="请再次输入密码"
               />
@@ -241,11 +246,14 @@ export default function RegisterPage() {
           </div>
 
           <div className="text-xs text-gray-500 text-center">
-            点击"创建账户"即表示您同意我们的{' '}
+            点击"创建账户"即表示您同意我们的
+            {' '}
             <Link href="/terms" className="text-indigo-600 hover:text-indigo-500">
               服务条款
-            </Link>{' '}
-            和{' '}
+            </Link>
+            {' '}
+            和
+            {' '}
             <Link href="/privacy" className="text-indigo-600 hover:text-indigo-500">
               隐私政策
             </Link>

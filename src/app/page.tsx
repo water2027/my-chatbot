@@ -7,6 +7,7 @@ import { useEffect, useState } from 'react'
 import ChatCard from '@/components/ChatCard'
 import HistoryAside from '@/components/HistoryAside'
 import { sendToAI } from '@/utils/sendToAI'
+import { useRouter } from 'next/navigation'
 
 export default function Home() {
   const models = ['gpt-4o-mini', 'gpt-4']
@@ -21,6 +22,7 @@ export default function Home() {
     messages: [],
   })
   const [content, setContent] = useState<string>('')
+  const router = useRouter()
 
   useEffect(() => {
     const handleBeforeUnload = () => {
@@ -117,19 +119,28 @@ export default function Home() {
     }))
     form.reset()
 
-    const newMessage = await sendToAI([...currentChat.messages, userMessage], model, setContent)
-    if (!newMessage) {
-      console.error('No message returned from AI')
-      return
+    try {
+      const newMessage = await sendToAI([...currentChat.messages, userMessage], model, setContent)
+      if (!newMessage) {
+        console.error('No message returned from AI')
+        return
+      }
+      setCurrentChat(prev => ({
+        ...prev,
+        messages: [...prev.messages, {
+          role: 'assistant',
+          content: newMessage,
+        }],
+      }))
+      setContent('')
+    } catch (error) {
+      if (error instanceof Error) {
+        if (error.cause === 401) {
+          router.push('/auth/login')
+          return
+        }
+      }
     }
-    setCurrentChat(prev => ({
-      ...prev,
-      messages: [...prev.messages, {
-        role: 'assistant',
-        content: newMessage,
-      }],
-    }))
-    setContent('')
   }
 
   return (

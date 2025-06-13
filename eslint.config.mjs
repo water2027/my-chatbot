@@ -5,5 +5,6 @@ export default antfu({
   react: true,
   rules: {
     'no-console': ['error', { allow: ['log', 'error']}],
+    'node/prefer-global/process': 'off'
   }
 })

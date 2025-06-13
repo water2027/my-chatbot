@@ -1,7 +1,8 @@
 import type { Message } from '@/types/message'
+import request from './useRequest'
 
 export async function sendToAI(messages: Message[], model: string, callback: (content: any) => void) {
-  const res = await fetch('/api/chat', {
+  const res = await request('/chat', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -19,7 +20,6 @@ export async function sendToAI(messages: Message[], model: string, callback: (co
     const { done, value: value_1 } = await reader.read()
 
     if (done) {
-      console.log('Stream completed')
       break
     }
 

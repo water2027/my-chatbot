@@ -1,9 +1,9 @@
 'use client'
 
-import { useState } from 'react'
-import { supabase } from '@/utils/supabase'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
+import { useState } from 'react'
+import { supabase } from '@/utils/supabase'
 
 export default function LoginPage() {
   const [email, setEmail] = useState('')
@@ -28,11 +28,13 @@ export default function LoginPage() {
       }
 
       if (data.user) {
-        router.push('/')
+        router.push('/auth/callback')
       }
-    } catch (error: any) {
+    }
+    catch (error: any) {
       setError(error.message || 'Login failed')
-    } finally {
+    }
+    finally {
       setLoading(false)
     }
   }
@@ -45,14 +47,15 @@ export default function LoginPage() {
       const { error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
-          redirectTo: `${window.location.origin}/auth/callback`
-        }
+          redirectTo: `${window.location.origin}/auth/callback`,
+        },
       })
 
       if (error) {
         throw error
       }
-    } catch (error: any) {
+    }
+    catch (error: any) {
       setError(error.message || 'Google login failed')
       setLoading(false)
     }
@@ -69,17 +72,17 @@ export default function LoginPage() {
 
     try {
       const { error } = await supabase.auth.resetPasswordForEmail(email, {
-        redirectTo: `${window.location.origin}/reset-password`
+        redirectTo: `${window.location.origin}/reset-password`,
       })
 
       if (error) {
         throw error
       }
-
-      alert('Password reset email sent! Please check your inbox.')
-    } catch (error: any) {
+    }
+    catch (error: any) {
       setError(error.message || 'Failed to send reset email')
-    } finally {
+    }
+    finally {
       setLoading(false)
     }
   }
@@ -92,7 +95,8 @@ export default function LoginPage() {
             登录您的账户
           </h2>
           <p className="mt-2 text-center text-sm text-gray-600">
-            或者{' '}
+            或者
+            {' '}
             <Link href="/auth/register" className="font-medium text-indigo-600 hover:text-indigo-500">
               创建新账户
             </Link>
@@ -112,7 +116,7 @@ export default function LoginPage() {
                 autoComplete="email"
                 required
                 value={email}
-                onChange={(e) => setEmail(e.target.value)}
+                onChange={e => setEmail(e.target.value)}
                 className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-t-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
                 placeholder="邮箱地址"
               />
@@ -128,7 +132,7 @@ export default function LoginPage() {
                 autoComplete="current-password"
                 required
                 value={password}
-                onChange={(e) => setPassword(e.target.value)}
+                onChange={e => setPassword(e.target.value)}
                 className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-b-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
                 placeholder="密码"
               />

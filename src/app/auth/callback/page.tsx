@@ -1,7 +1,7 @@
 'use client'
 
-import { useEffect, useState } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
+import { useEffect, useState } from 'react'
 import { supabase } from '@/utils/supabase'
 
 export default function LoginCallback() {
@@ -13,29 +13,29 @@ export default function LoginCallback() {
     const handleAuthCallback = async () => {
       try {
         const { data, error: authError } = await supabase.auth.getSession()
-        
+
         if (authError) {
           console.error('Auth callback error:', authError.message)
           setError('Authentication failed')
           return
         }
-
         if (data.session) {
           const user = data.session.user
           const accessToken = data.session.access_token
           const refreshToken = data.session.refresh_token
-          console.log(user, accessToken, refreshToken)          
           localStorage.setItem('access_token', accessToken)
           if (refreshToken) {
             localStorage.setItem('refresh_token', refreshToken)
           }
-          
+
           const redirectTo = searchParams.get('redirect') || '/'
           router.push(redirectTo)
-        } else {
+        }
+        else {
           setError('No authentication session found')
         }
-      } catch (err) {
+      }
+      catch (err) {
         console.error('Unexpected error during auth callback:', err)
         setError('An unexpected error occurred')
       }
@@ -51,6 +51,7 @@ export default function LoginCallback() {
           <div className="text-red-500 text-xl mb-4">认证错误</div>
           <p className="text-gray-600 mb-4">{error}</p>
           <button
+            type="button"
             onClick={() => router.push('/login')}
             className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
           >
