@@ -3,11 +3,11 @@
 import type { FormEvent } from 'react'
 import type { ChatHistory } from '@/types/chat'
 import type { Message } from '@/types/message'
+import { useRouter } from 'next/navigation'
 import { useEffect, useState } from 'react'
 import ChatCard from '@/components/ChatCard'
 import HistoryAside from '@/components/HistoryAside'
 import { sendToAI } from '@/utils/sendToAI'
-import { useRouter } from 'next/navigation'
 
 export default function Home() {
   const models = ['gpt-4o-mini', 'gpt-4']
@@ -133,11 +133,11 @@ export default function Home() {
         }],
       }))
       setContent('')
-    } catch (error) {
+    }
+    catch (error) {
       if (error instanceof Error) {
         if (error.cause === 401) {
           router.push('/auth/login')
-          return
         }
       }
     }

@@ -56,7 +56,7 @@ export default async function request(url: string, requestInit: RequestInit, ret
     // 登录失效了, 应该刷新token再发送一次请求
     const result = await refreshToken()
     if (!result) {
-      throw new Error('需要登录', {cause: 401})
+      throw new Error('需要登录', { cause: 401 })
     }
     return await request(url, requestInit, retryCount + 1)
   }

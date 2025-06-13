@@ -20,7 +20,7 @@ export default function LoginCallback() {
           return
         }
         if (data.session) {
-          const user = data.session.user
+          // const user = data.session.user
           const accessToken = data.session.access_token
           const refreshToken = data.session.refresh_token
           localStorage.setItem('access_token', accessToken)
