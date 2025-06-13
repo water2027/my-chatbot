@@ -51,7 +51,7 @@ export default function HistoryAside({
     <aside
       className={`
         h-full w-0 md:w-1/20 bg-gray-900 border-r border-gray-700 transition-all duration-300 ease-in-out
-        hover:w-80 group ${isExpanded? 'absolute w-4/5 md:relative md:w-80': ''}
+        hover:w-80 group ${isExpanded ? 'absolute w-4/5 md:relative md:w-80' : ''}
       `}
     >
       {/* 展开按钮 */}
@@ -133,7 +133,7 @@ export default function HistoryAside({
       {/* 底部操作 */}
       <div className={`
         sticky bottom-0 left-0 right-0 p-3 border-t border-gray-700 bg-gray-900
-        transition-opacity duration-300 ${isExpanded? '' : 'hidden md:block'}
+        transition-opacity duration-300 ${isExpanded ? '' : 'hidden md:block'}
       `}
       >
         <button
