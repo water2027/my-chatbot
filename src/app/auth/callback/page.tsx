@@ -10,7 +10,7 @@ function LoginCallbackContent() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const [error, setError] = useState<string | null>(null)
-  const { userInfo, setUserInfo } = useUserStore()
+  const { setUserInfo } = useUserStore()
 
   useEffect(() => {
     const handleAuthCallback = async () => {
@@ -25,9 +25,9 @@ function LoginCallbackContent() {
         if (data.session) {
           const accessToken = data.session.access_token
           const refreshToken = data.session.refresh_token
-          setUserInfo({ accessToken, refreshToken: userInfo?.refreshToken || '' })
+          setUserInfo({accessToken, refreshToken:''})
           if (refreshToken) {
-            setUserInfo({ accessToken, refreshToken })
+            setUserInfo({accessToken, refreshToken})
           }
 
           const redirectTo = searchParams.get('redirect') || '/'

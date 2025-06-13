@@ -3,7 +3,7 @@ import { supabase } from './supabase'
 
 async function refreshToken() {
   try {
-    const { userInfo, clearUserInfo, setUserInfo } = useUserStore.getState()
+    const { userInfo, clearUserInfo, updateAccessToken, updateRefreshToken } = useUserStore.getState()
     const { refreshToken } = userInfo!
     if (!refreshToken) {
       return null
@@ -22,9 +22,9 @@ async function refreshToken() {
       const newAccessToken = session.access_token
       const newRefreshToken = session.refresh_token
 
-      setUserInfo({ accessToken: newAccessToken, refreshToken })
+      updateAccessToken(newAccessToken)
       if (newRefreshToken) {
-        setUserInfo({ accessToken: newAccessToken, refreshToken: newRefreshToken })
+        updateRefreshToken(newRefreshToken)
       }
 
       return newAccessToken

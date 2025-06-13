@@ -8,31 +8,37 @@ interface UserInfo {
 
 interface UserState {
   userInfo: UserInfo | null
-  isAuthenticated: boolean
   setUserInfo: (userInfo: UserInfo) => void
   clearUserInfo: () => void
-  updateToken: (accessToken: string) => void
+  updateAccessToken: (accessToken: string) => void
+  updateRefreshToken: (refreshToken: string) => void
 }
 
 export const useUserStore = create<UserState>((set, _get) => ({
   userInfo: null,
-  isAuthenticated: false,
 
   setUserInfo: userInfo => set({
     userInfo,
-    isAuthenticated: true,
   }),
 
   clearUserInfo: () => set({
     userInfo: null,
-    isAuthenticated: false,
   }),
 
-  updateToken: accessToken => set(state => ({
+  updateAccessToken: accessToken => set(state => ({
     userInfo: state.userInfo
       ? {
           ...state.userInfo,
           accessToken,
+        }
+      : null,
+  })),
+
+  updateRefreshToken: refreshToken => set(state => ({
+    userInfo: state.userInfo
+      ? {
+          ...state.userInfo,
+          refreshToken,
         }
       : null,
   })),
