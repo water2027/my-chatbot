@@ -1,8 +1,9 @@
 'use client'
 
+import type { FormEvent } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
-import { useState, FormEvent, useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { supabase } from '@/utils/supabase'
 
 export default function ResetPasswordPage() {
@@ -17,21 +18,25 @@ export default function ResetPasswordPage() {
     const checkSession = async () => {
       try {
         const { data, error } = await supabase.auth.getSession()
-        
+
         if (error) {
           console.error('Session error:', error)
           setValidSession(false)
-        } else if (data.session) {
+        }
+        else if (data.session) {
           console.log('Valid session found')
           setValidSession(true)
-        } else {
+        }
+        else {
           console.log('No valid session')
           setValidSession(false)
         }
-      } catch (err) {
+      }
+      catch (err) {
         console.error('Error checking session:', err)
         setValidSession(false)
-      } finally {
+      }
+      finally {
         setCheckingSession(false)
       }
     }
@@ -39,18 +44,20 @@ export default function ResetPasswordPage() {
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, session) => {
         console.log('Auth state change:', event, session ? 'session exists' : 'no session')
-        
+
         if (event === 'PASSWORD_RECOVERY') {
           setValidSession(true)
           setCheckingSession(false)
-        } else if (session) {
+        }
+        else if (session) {
           setValidSession(true)
           setCheckingSession(false)
-        } else {
+        }
+        else {
           setValidSession(false)
           setCheckingSession(false)
         }
-      }
+      },
     )
 
     checkSession()
@@ -67,11 +74,12 @@ export default function ResetPasswordPage() {
 
     try {
       const el = e.target as HTMLFormElement
-      if (!el) return
+      if (!el)
+        return
       const form = new FormData(el)
       const password = form.get('password')?.toString()
       const confirmPassword = form.get('confirmPassword')?.toString()
-      
+
       if (!password || !confirmPassword) {
         setError('需要填写完整')
         return
@@ -88,7 +96,7 @@ export default function ResetPasswordPage() {
       }
 
       const { error } = await supabase.auth.updateUser({
-        password: password
+        password,
       })
 
       if (error) {
@@ -96,14 +104,15 @@ export default function ResetPasswordPage() {
       }
 
       setSuccess(true)
-      
+
       setTimeout(() => {
         router.push('/auth/login')
       }, 1000)
-
-    } catch (error: any) {
+    }
+    catch (error: any) {
       setError(error.message || 'fail')
-    } finally {
+    }
+    finally {
       setLoading(false)
     }
   }
@@ -154,7 +163,7 @@ export default function ResetPasswordPage() {
             >
               返回登录
             </Link>
-            
+
             <Link
               href="/auth/forgot"
               className="group relative w-full flex justify-center py-2 px-4 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"

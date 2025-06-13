@@ -1,8 +1,9 @@
 'use client'
 
+import type { FormEvent } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
-import { useState, FormEvent } from 'react'
+import { useState } from 'react'
 import { supabase } from '@/utils/supabase'
 
 export default function RegisterPage() {
@@ -24,12 +25,13 @@ export default function RegisterPage() {
     setError('')
 
     const el = e.target as HTMLFormElement
-    if(!el) return
+    if (!el)
+      return
     const form = new FormData(el)
     const email = form.get('email')?.toString()
     const password = form.get('password')?.toString()
     const confirmPassword = form.get('confirmPassword')?.toString()
-    if(!email || !password || !confirmPassword) {
+    if (!email || !password || !confirmPassword) {
       setError('未填写完整')
       setLoading(false)
       return
