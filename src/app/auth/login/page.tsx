@@ -1,23 +1,30 @@
 'use client'
 
+import type { FormEvent } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { useState } from 'react'
 import { supabase } from '@/utils/supabase'
 
 export default function LoginPage() {
-  const [email, setEmail] = useState('')
-  const [password, setPassword] = useState('')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const router = useRouter()
 
-  const handleEmailLogin = async (e: React.FormEvent) => {
+  const handleEmailLogin = async (e: FormEvent) => {
     e.preventDefault()
     setLoading(true)
     setError('')
 
     try {
+      const el = e.target as HTMLFormElement
+      if (!el)
+        return
+      const form = new FormData(el)
+      const email = form.get('email')?.toString()
+      const password = form.get('password')?.toString()
+      if (!email || !password)
+        return
       const { data, error } = await supabase.auth.signInWithPassword({
         email,
         password,
@@ -61,32 +68,6 @@ export default function LoginPage() {
     }
   }
 
-  const handleForgotPassword = async () => {
-    if (!email) {
-      setError('Please enter your email address first')
-      return
-    }
-
-    setLoading(true)
-    setError('')
-
-    try {
-      const { error } = await supabase.auth.resetPasswordForEmail(email, {
-        redirectTo: `${window.location.origin}/reset-password`,
-      })
-
-      if (error) {
-        throw error
-      }
-    }
-    catch (error: any) {
-      setError(error.message || 'Failed to send reset email')
-    }
-    finally {
-      setLoading(false)
-    }
-  }
-
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-md w-full space-y-8">
@@ -115,8 +96,6 @@ export default function LoginPage() {
                 type="email"
                 autoComplete="email"
                 required
-                value={email}
-                onChange={e => setEmail(e.target.value)}
                 className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-t-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
                 placeholder="邮箱地址"
               />
@@ -131,8 +110,6 @@ export default function LoginPage() {
                 type="password"
                 autoComplete="current-password"
                 required
-                value={password}
-                onChange={e => setPassword(e.target.value)}
                 className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-b-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
                 placeholder="密码"
               />
@@ -141,13 +118,12 @@ export default function LoginPage() {
 
           <div className="flex items-center justify-between">
             <div className="text-sm">
-              <button
-                type="button"
-                onClick={handleForgotPassword}
-                className="font-medium text-indigo-600 hover:text-indigo-500"
+              <Link
+                href="/auth/forget"
+                className="block font-medium text-indigo-600 hover:text-indigo-500"
               >
                 忘记密码？
-              </button>
+              </Link>
             </div>
           </div>
 
