@@ -25,11 +25,7 @@ function LoginCallbackContent() {
         if (data.session) {
           const accessToken = data.session.access_token
           const refreshToken = data.session.refresh_token
-          setUserInfo({accessToken, refreshToken:''})
-          if (refreshToken) {
-            setUserInfo({accessToken, refreshToken})
-          }
-
+          setUserInfo({ accessToken, refreshToken: refreshToken || '' })
           const redirectTo = searchParams.get('redirect') || '/'
           router.push(redirectTo)
         }
