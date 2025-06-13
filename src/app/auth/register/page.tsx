@@ -2,13 +2,10 @@
 
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
-import { useState } from 'react'
+import { useState, FormEvent } from 'react'
 import { supabase } from '@/utils/supabase'
 
 export default function RegisterPage() {
-  const [email, setEmail] = useState('')
-  const [password, setPassword] = useState('')
-  const [confirmPassword, setConfirmPassword] = useState('')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const [success, setSuccess] = useState(false)
@@ -16,15 +13,27 @@ export default function RegisterPage() {
 
   const validatePassword = (password: string) => {
     if (password.length < 6) {
-      return 'Password must be at least 6 characters long'
+      return '密码至少6位'
     }
     return null
   }
 
-  const handleRegister = async (e: React.FormEvent) => {
+  const handleRegister = async (e: FormEvent) => {
     e.preventDefault()
     setLoading(true)
     setError('')
+
+    const el = e.target as HTMLFormElement
+    if(!el) return
+    const form = new FormData(el)
+    const email = form.get('email')?.toString()
+    const password = form.get('password')?.toString()
+    const confirmPassword = form.get('confirmPassword')?.toString()
+    if(!email || !password || !confirmPassword) {
+      setError('未填写完整')
+      setLoading(false)
+      return
+    }
 
     if (password !== confirmPassword) {
       setError('Passwords do not match')
@@ -147,8 +156,6 @@ export default function RegisterPage() {
                 type="email"
                 autoComplete="email"
                 required
-                value={email}
-                onChange={e => setEmail(e.target.value)}
                 className="mt-1 appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
                 placeholder="请输入邮箱地址"
               />
@@ -164,8 +171,6 @@ export default function RegisterPage() {
                 type="password"
                 autoComplete="new-password"
                 required
-                value={password}
-                onChange={e => setPassword(e.target.value)}
                 className="mt-1 appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
                 placeholder="请输入密码（至少6位）"
               />
@@ -181,8 +186,6 @@ export default function RegisterPage() {
                 type="password"
                 autoComplete="new-password"
                 required
-                value={confirmPassword}
-                onChange={e => setConfirmPassword(e.target.value)}
                 className="mt-1 appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
                 placeholder="请再次输入密码"
               />
