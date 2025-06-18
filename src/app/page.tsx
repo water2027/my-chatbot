@@ -59,7 +59,7 @@ export default function Home() {
       }
     }
     initialize()
-  }, [])
+  }, [initialize])
 
   useEffect(() => {
     if (currentChat.id === '-1')
@@ -167,16 +167,6 @@ export default function Home() {
             ))}
           </select>
           <AvatarSection isOnline={isAuthenticated} onLoginClick={onLoginClick} onLogoutClick={onLogoutClick} />
-          {/* <div className="group flex flex-col items-center flex-shrink-0">
-            <div
-              className="w-9 h-9 rounded-full flex items-center justify-center font-bold text-sm p-8 bg-teal-200 text-teal-800"
-            >
-              离线
-            </div>
-            <div className="hidden group-hover:block">
-              <Link href="/auth/login">登录</Link>
-            </div>
-          </div> */}
         </div>
         {/* 对话列表 */}
         <div className="custom-scrollbar h-80vh overflow-y-auto px-8">

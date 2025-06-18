@@ -3,10 +3,6 @@ export default async function request(url: string, requestInit: RequestInit) {
     url = process.env.NEXT_PUBLIC_API_URL + url
   }
   const resp = await fetch(url, requestInit)
-  if (resp.status === 401) {
-    window.location.href = '/auth/login'
-    return Promise.reject(new Error('Unauthorized'))
-  }
 
   return resp
 }
