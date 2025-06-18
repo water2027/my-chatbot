@@ -9,7 +9,7 @@ const openai = new OpenAI({
   baseURL: process.env.BASE_URL || '',
 })
 
-export function streamChatResponse(messages: Message[], model: string) {
+export async function streamChatResponse(messages: Message[], model: string) {
   const stream = createStreamableValue('')
 
   ;(async () => {
