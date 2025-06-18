@@ -94,7 +94,7 @@ export default function useChat(store: StoreHandler) {
     setChatHistory(newHistory)
   }
 
-  const submitMessage = async (content: string, model: string) : Promise<void> => {
+  const submitMessage = async (content: string, model: string): Promise<void> => {
     if (!content) {
       return Promise.reject(new Error('empty content'))
     }
