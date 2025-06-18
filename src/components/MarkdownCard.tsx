@@ -12,7 +12,7 @@ export interface ChatCardProps {
   content: string
 }
 
-import 'github-markdown-css'
+import './github-markdown.css'
 
 function CopyButton({ text }: { text: string }) {
   const [copied, setCopied] = useState(false)
@@ -104,7 +104,7 @@ const md = new MarkdownIt({
   typographer: true,
 })
 
-export default function ChatCard({ role, content }: ChatCardProps) {
+export default function MarkdownCard({ role, content }: ChatCardProps) {
   const config = roleConfig[role]
 
   const parseContent = (text: string) => {

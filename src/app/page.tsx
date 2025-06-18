@@ -15,7 +15,7 @@ export default function Home() {
   let model = models[0]
   const { isAuthenticated, signOut, initialize } = useAuthStore()
   const router = useRouter()
-  const { addNewChat, deleteChat, selectChat, currentChat, chatHistory, submitMessage, node } = useChat(localStorageHandler)
+  const { addNewChat, deleteChat, selectChat, currentChat, chatHistory, submitMessage, content } = useChat(localStorageHandler)
 
   useEffect(() => {
     initialize()
@@ -52,7 +52,7 @@ export default function Home() {
           <AvatarSection isOnline={isAuthenticated} onLoginClick={onLoginClick} onLogoutClick={onLogoutClick} />
         </div>
         {/* 对话列表 */}
-        <ChatContainer currentChat={currentChat} node={node} />
+        <ChatContainer currentChat={currentChat} content={content} />
         {/* 输入框 */}
         <form action={handleSubmit} className="mt-auto mx-auto w-5/6 md:w-2/3 flex flex-row">
           <textarea className="w-full bg-blue-300 custom-scrollbar resize-none" rows={3} name="message" id="message"></textarea>

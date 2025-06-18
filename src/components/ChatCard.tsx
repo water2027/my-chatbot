@@ -1,8 +1,6 @@
 export interface ChatCardProps {
   chatId?: string
-  role: 'assistant'
   content: string
-  markdown: boolean
 }
 
 const roleConfig = {
@@ -16,8 +14,8 @@ const roleConfig = {
   },
 }
 
-export default function ChatCard({ role, content }: ChatCardProps) {
-  const config = roleConfig[role]
+export default function ChatCard({ content }: ChatCardProps) {
+  const config = roleConfig['assistant']
 
   return (
     // 外层容器，控制整行消息是靠左还是靠右 (justify-start/end)

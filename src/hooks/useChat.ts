@@ -1,8 +1,8 @@
-import type { ReactNode } from 'react'
 import type { ChatHistory } from '@/types/chat'
 import type { Message } from '@/types/message'
+import { readStreamableValue } from 'ai/rsc'
 import { useEffect, useState } from 'react'
-import { StreamChat } from '@/actions/ai'
+import { streamChatResponse } from '@/actions/rsc'
 
 interface StoreHandler {
   get: <T>(key: string, model: T) => T | undefined
@@ -10,7 +10,8 @@ interface StoreHandler {
 }
 
 export default function useChat(store: StoreHandler) {
-  const [node, setNode] = useState<ReactNode | null>(null)
+  const [content, setContent] = useState<string>('')
+  // const [node, setNode] = useState<ReactNode | null>(null)
   const [latestId, setLatestId] = useState(0)
   const [chatHistory, setChatHistory] = useState<{
     [key: string]: ChatHistory
@@ -109,18 +110,23 @@ export default function useChat(store: StoreHandler) {
     }))
 
     try {
-      const { node: newNode, result } = await StreamChat([...currentChat.messages, userMessage], model)
-      setNode(newNode)
-      result.then((finalContent) => {
-        setCurrentChat(prev => ({
-          ...prev,
-          messages: [...prev.messages, {
-            role: 'assistant',
-            content: finalContent,
-          }],
-        }))
-        setNode(null)
-      })
+      const { stream } = await streamChatResponse([...currentChat.messages, userMessage], model)
+      let fullResponse = ''
+      for await (const chunk of readStreamableValue(stream)) {
+        if (chunk) {
+          fullResponse += chunk
+          setContent(prev => prev + chunk)
+        }
+      }
+
+      setContent('')
+      setCurrentChat(prev => ({
+        ...prev,
+        messages: [...prev.messages, {
+          role: 'assistant',
+          content: fullResponse
+        }]
+      }))
     }
     catch (error) {
       return Promise.reject(error)
@@ -134,6 +140,7 @@ export default function useChat(store: StoreHandler) {
     currentChat,
     chatHistory,
     submitMessage,
-    node,
+    // node,
+    content
   }
 }

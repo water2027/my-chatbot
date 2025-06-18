@@ -58,9 +58,7 @@ export async function StreamChat(messages: Message[], model: string) {
     resolve({
       value: (
         <ChatCard
-          role="assistant"
           content={accumulatedContent}
-          markdown={false}
         />
       ),
       done: false,
@@ -76,9 +74,7 @@ export async function StreamChat(messages: Message[], model: string) {
     resolve({
       value: (
         <ChatCard
-          role="assistant"
           content={accumulatedContent}
-          markdown={false}
         />
       ),
       done: true,
