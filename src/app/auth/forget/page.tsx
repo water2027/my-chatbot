@@ -3,7 +3,7 @@
 import type { FormEvent } from 'react'
 import Link from 'next/link'
 import { useState } from 'react'
-import { createClient } from '@/utils/supabase'
+import { createClient } from '@/utils/supabase/browser'
 
 export default function ForgotPasswordPage() {
   const [loading, setLoading] = useState(false)

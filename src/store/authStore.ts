@@ -1,6 +1,6 @@
 import type { User } from '@supabase/supabase-js'
-import { createBrowserClient } from '@supabase/ssr'
 import { create } from 'zustand'
+import { createClient } from '@/utils/supabase/browser'
 
 interface AuthState {
   user: User | null
@@ -28,10 +28,7 @@ export const useAuthStore = create<AuthState & AuthActions>((set, get) => ({
   setLoading: loading => set({ loading }),
 
   initialize: async () => {
-    const supabase = createBrowserClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-    )
+    const supabase = createClient()
 
     try {
       const { data: { user } } = await supabase.auth.getUser()
@@ -51,10 +48,7 @@ export const useAuthStore = create<AuthState & AuthActions>((set, get) => ({
   },
 
   signOut: async () => {
-    const supabase = createBrowserClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-    )
+    const supabase = createClient()
     await supabase.auth.signOut()
     set({ user: null, isAuthenticated: false })
   },

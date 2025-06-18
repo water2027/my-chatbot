@@ -4,7 +4,7 @@ import type { FormEvent } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { useEffect, useState } from 'react'
-import { createClient } from '@/utils/supabase'
+import { createClient } from '@/utils/supabase/browser'
 
 export default function ResetPasswordPage() {
   const [loading, setLoading] = useState(false)
