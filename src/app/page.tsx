@@ -1,15 +1,15 @@
 // 事已至此, 暂时纯客户端吧
 'use client'
-import type { FormEvent } from 'react'
+import type { ReactNode } from 'react'
 import type { ChatHistory } from '@/types/chat'
 import type { Message } from '@/types/message'
 import { useRouter } from 'next/navigation'
 import { useEffect, useState } from 'react'
+import { StreamChat } from '@/actions/ai'
 import AvatarSection from '@/components/AvatarSection'
 import ChatCard from '@/components/ChatCard'
 import HistoryAside from '@/components/HistoryAside'
 import { useAuthStore } from '@/store/authStore'
-import { sendToAI } from '@/utils/sendToAI'
 
 export default function Home() {
   const models = ['gpt-4o-mini', 'gpt-4']
@@ -22,7 +22,7 @@ export default function Home() {
     id: '-1',
     messages: [],
   })
-  const [content, setContent] = useState<string>('')
+  const [node, setNode] = useState<ReactNode | null>(null)
   const { isAuthenticated, signOut, initialize } = useAuthStore()
   const router = useRouter()
 
@@ -104,10 +104,7 @@ export default function Home() {
     setChatHistory(newHistory)
   }
 
-  const sendMessageToAi = async (event: FormEvent<HTMLFormElement>) => {
-    event.preventDefault()
-    const form = event.currentTarget
-    const formData = new FormData(form)
+  const handleSubmit = async (formData: FormData) => {
     const msg = formData.get('message') as string
     if (!msg) {
       return
@@ -120,29 +117,23 @@ export default function Home() {
       ...prev,
       messages: [...prev.messages, userMessage],
     }))
-    form.reset()
 
     try {
-      const newMessage = await sendToAI([...currentChat.messages, userMessage], model, setContent)
-      if (!newMessage) {
-        console.error('No message returned from AI')
-        return
-      }
-      setCurrentChat(prev => ({
-        ...prev,
-        messages: [...prev.messages, {
-          role: 'assistant',
-          content: newMessage,
-        }],
-      }))
-      setContent('')
+      const { node: newNode, result } = await StreamChat([...currentChat.messages, userMessage], model)
+      setNode(newNode)
+      result.then((finalContent) => {
+        setCurrentChat(prev => ({
+          ...prev,
+          messages: [...prev.messages, {
+            role: 'assistant',
+            content: finalContent,
+          }],
+        }))
+        setNode(null)
+      })
     }
     catch (error) {
-      if (error instanceof Error) {
-        if (error.cause === 401) {
-          router.push('/auth/login')
-        }
-      }
+      console.error('Error during chat action:', error)
     }
   }
 
@@ -174,12 +165,12 @@ export default function Home() {
             // eslint-disable-next-line react/no-array-index-key
             <ChatCard markdown={true} key={`${currentChat.id}-${index}`} role={chat.role} content={chat.content} />
           ))}
-          <div className={content ? '' : 'hidden'}>
-            <ChatCard markdown={false} role="assistant" content={content} />
+          <div>
+            {node}
           </div>
         </div>
         {/* 输入框 */}
-        <form onSubmit={sendMessageToAi} className="mt-auto mx-auto w-5/6 md:w-2/3 flex flex-row">
+        <form action={handleSubmit} className="mt-auto mx-auto w-5/6 md:w-2/3 flex flex-row">
           <textarea className="w-full bg-blue-300 custom-scrollbar resize-none" rows={3} name="message" id="message"></textarea>
           <button type="submit" className="rounded-full bg-amber-300 h-5 w-5 flex items-center justify-center p-6 m-auto hover:bg-amber-200 transition-colors duration-200">S</button>
         </form>
