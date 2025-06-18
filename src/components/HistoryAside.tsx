@@ -44,7 +44,7 @@ export default function HistoryAside({
     if (!messages || messages.length === 0)
       return '新对话'
     const firstUserMessage = messages.find(msg => msg.role === 'user')
-    return `${firstUserMessage?.content?.slice(0, 20)}...` || '新对话'
+    return `${firstUserMessage?.content?.slice(0, 10)}...` || '新对话'
   }
 
   return (

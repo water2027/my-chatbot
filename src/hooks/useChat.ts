@@ -140,7 +140,6 @@ export default function useChat(store: StoreHandler) {
     currentChat,
     chatHistory,
     submitMessage,
-    // node,
     content,
   }
 }
