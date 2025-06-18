@@ -12,7 +12,7 @@ export interface ChatCardProps {
   content: string
 }
 
-import './github-markdown.css'
+import '@/assets/github-markdown.css'
 
 function CopyButton({ text }: { text: string }) {
   const [copied, setCopied] = useState(false)
