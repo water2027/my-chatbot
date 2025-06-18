@@ -8,7 +8,7 @@ import { useEffect, useState } from 'react'
 import AvatarSection from '@/components/AvatarSection'
 import ChatCard from '@/components/ChatCard'
 import HistoryAside from '@/components/HistoryAside'
-import { useUserStore } from '@/store/userStore'
+import { useAuthStore } from '@/store/authStore'
 import { sendToAI } from '@/utils/sendToAI'
 
 export default function Home() {
@@ -23,9 +23,8 @@ export default function Home() {
     messages: [],
   })
   const [content, setContent] = useState<string>('')
-  const { userInfo, clearUserInfo } = useUserStore()
+  const { isAuthenticated, signOut, initialize } = useAuthStore()
   const router = useRouter()
-  const isLogin = !!(userInfo?.accessToken && userInfo?.refreshToken)
 
   useEffect(() => {
     const handleBeforeUnload = () => {
@@ -59,6 +58,7 @@ export default function Home() {
         console.error('Failed to parse chatHistory:', error)
       }
     }
+    initialize()
   }, [])
 
   useEffect(() => {
@@ -151,7 +151,8 @@ export default function Home() {
   }
 
   const onLogoutClick = () => {
-    clearUserInfo()
+    signOut()
+    router.push('/auth/login')
   }
 
   return (
@@ -165,7 +166,7 @@ export default function Home() {
               <option key={model} value={model}>{model}</option>
             ))}
           </select>
-          <AvatarSection isOnline={isLogin} onLoginClick={onLoginClick} onLogoutClick={onLogoutClick} />
+          <AvatarSection isOnline={isAuthenticated} onLoginClick={onLoginClick} onLogoutClick={onLogoutClick} />
           {/* <div className="group flex flex-col items-center flex-shrink-0">
             <div
               className="w-9 h-9 rounded-full flex items-center justify-center font-bold text-sm p-8 bg-teal-200 text-teal-800"

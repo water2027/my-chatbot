@@ -4,7 +4,7 @@ import type { FormEvent } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { useState } from 'react'
-import { supabase } from '@/utils/supabase'
+import { createClient } from '@/utils/supabase'
 
 export default function RegisterPage() {
   const [loading, setLoading] = useState(false)
@@ -51,6 +51,7 @@ export default function RegisterPage() {
     }
 
     try {
+      const supabase = createClient()
       const { data, error } = await supabase.auth.signUp({
         email,
         password,
@@ -83,10 +84,11 @@ export default function RegisterPage() {
     setError('')
 
     try {
+      const supabase = createClient()
       const { error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
-          redirectTo: `${window.location.origin}/auth/callback`,
+          redirectTo: `${window.location.origin}/`,
         },
       })
 

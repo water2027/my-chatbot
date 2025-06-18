@@ -4,7 +4,7 @@ import type { FormEvent } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { useState } from 'react'
-import { supabase } from '@/utils/supabase'
+import { createClient } from '@/utils/supabase'
 
 export default function LoginPage() {
   const [loading, setLoading] = useState(false)
@@ -25,6 +25,7 @@ export default function LoginPage() {
       const password = form.get('password')?.toString()
       if (!email || !password)
         return
+      const supabase = createClient()
       const { data, error } = await supabase.auth.signInWithPassword({
         email,
         password,
@@ -35,7 +36,7 @@ export default function LoginPage() {
       }
 
       if (data.user) {
-        router.push('/auth/callback')
+        router.push('/')
       }
     }
     catch (error: any) {
@@ -51,10 +52,11 @@ export default function LoginPage() {
     setError('')
 
     try {
+      const supabase = createClient()
       const { error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
-          redirectTo: `${window.location.origin}/auth/callback`,
+          redirectTo: `${window.location.origin}/`,
         },
       })
 

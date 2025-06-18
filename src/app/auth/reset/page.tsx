@@ -4,7 +4,7 @@ import type { FormEvent } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { useEffect, useState } from 'react'
-import { supabase } from '@/utils/supabase'
+import { createClient } from '@/utils/supabase'
 
 export default function ResetPasswordPage() {
   const [loading, setLoading] = useState(false)
@@ -17,6 +17,7 @@ export default function ResetPasswordPage() {
   useEffect(() => {
     const checkSession = async () => {
       try {
+        const supabase = createClient()
         const { data, error } = await supabase.auth.getSession()
 
         if (error) {
@@ -41,6 +42,7 @@ export default function ResetPasswordPage() {
       }
     }
 
+    const supabase = createClient()
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, session) => {
         console.log('Auth state change:', event, session ? 'session exists' : 'no session')
@@ -95,6 +97,7 @@ export default function ResetPasswordPage() {
         return
       }
 
+      const supabase = createClient()
       const { error } = await supabase.auth.updateUser({
         password,
       })
