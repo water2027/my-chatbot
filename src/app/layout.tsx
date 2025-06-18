@@ -1,4 +1,5 @@
 import type { Metadata } from 'next'
+import { Toaster } from "@/components/ui/sonner"
 // import { Geist, Geist_Mono } from 'next/font/google'
 import './globals.css'
 
@@ -28,6 +29,7 @@ export default function RootLayout({
         className={` antialiased w-full h-full overflow-hidden`}
       >
         {children}
+        <Toaster position="top-right" />
       </body>
     </html>
   )
