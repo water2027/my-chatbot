@@ -14,8 +14,10 @@ export default function ChatContainer({ currentChat, content }: ChatContainerPro
         // eslint-disable-next-line react/no-array-index-key
         <MarkdownCard key={`${currentChat.id}-${index}`} role={chat.role} content={chat.content} />
       ))}
-      {content && <ChatCard content={content}>
-      </ChatCard>}
+      {content && (
+        <ChatCard content={content}>
+        </ChatCard>
+      )}
     </div>
   )
 }

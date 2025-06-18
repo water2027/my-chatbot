@@ -124,8 +124,8 @@ export default function useChat(store: StoreHandler) {
         ...prev,
         messages: [...prev.messages, {
           role: 'assistant',
-          content: fullResponse
-        }]
+          content: fullResponse,
+        }],
       }))
     }
     catch (error) {
@@ -141,6 +141,6 @@ export default function useChat(store: StoreHandler) {
     chatHistory,
     submitMessage,
     // node,
-    content
+    content,
   }
 }
