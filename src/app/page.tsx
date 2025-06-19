@@ -24,12 +24,14 @@ import { useAuthStore } from '@/store/authStore'
 import localStorageHandler from '@/utils/localStorageHandler'
 
 export default function Home() {
-  const models = ['gpt-4o-mini', 'gpt-4']
-  const [model, setModel] = useState(models[0])
   const [sidebarExpanded, setSidebarExpanded] = useState(false)
   const { isAuthenticated, signOut, initialize } = useAuthStore()
   const router = useRouter()
   const {
+    error,
+    models,
+    model,
+    setModel,
     addNewChat,
     deleteChat,
     selectChat,
@@ -43,12 +45,16 @@ export default function Home() {
     initialize()
   }, [initialize])
 
+  useEffect(() => {
+    if (error) {
+      toast.error(error.message || 'An error occurred')
+      console.error('Chat error:', error)
+    }
+  }, [error])
+
   const handleSubmit = (formData: FormData) => {
     const msg = formData.get('message') as string
-    submitMessage(msg, model)
-      .catch((reason) => {
-        toast(reason)
-      })
+    submitMessage(msg)
   }
 
   const onLoginClick = () => {
@@ -89,7 +95,7 @@ export default function Home() {
         />
 
         <main className={cn(
-          'flex-1 h-full flex flex-col min-w-0 transition-all duration-300',
+          'flex-1 h-full flex flex-col min-w-0 transition-all duration-300 p-4',
           'md:ml-0',
         )}
         >
