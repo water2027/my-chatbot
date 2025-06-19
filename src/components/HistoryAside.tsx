@@ -1,6 +1,22 @@
 import type { MouseEvent } from 'react'
 import type { ChatHistory } from '@/types/chat'
+import {
+  Menu,
+  MessageSquare,
+  Plus,
+  Trash2,
+} from 'lucide-react'
 import { useState } from 'react'
+import { Button } from '@/components/ui/button'
+import { ScrollArea } from '@/components/ui/scroll-area'
+import { Separator } from '@/components/ui/separator'
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from '@/components/ui/tooltip'
+import { cn } from '@/lib/utils'
 
 export interface ChatHistoryProps {
   history: {
@@ -24,12 +40,12 @@ export default function HistoryAside({
   const handleChatSelect = (event: MouseEvent) => {
     const el = event.target as HTMLElement
     // 检查是否点击了删除按钮
-    if (el.closest('.delete-button')) {
+    if (el.closest('[data-delete-button]')) {
       return
     }
 
-    const listItem = el.closest('li') as HTMLLIElement
-    const id = listItem?.id
+    const listItem = el.closest('[data-chat-item]') as HTMLElement
+    const id = listItem?.dataset.chatId
     if (!listItem || !id)
       return
     onSelectChat(id)
@@ -48,102 +64,123 @@ export default function HistoryAside({
   }
 
   return (
-    <aside
-      className={`
-        h-full w-0 md:w-1/20 bg-gray-900 border-r border-gray-700 transition-all duration-300 ease-in-out
-        hover:w-80 group ${isExpanded ? 'absolute w-4/5 md:relative md:w-80' : ''}
-      `}
-    >
-      {/* 展开按钮 */}
-      <div className="sticky top-0 z-10 p-3 border-b border-gray-700">
-        <button
-          type="button"
-          className="w-6 h-6 flex flex-col justify-center items-center space-y-1 transition-all duration-300 focus:outline-none hover:bg-gray-700 hover:rounded-md p-1"
-          aria-label="切换菜单"
-          onClick={() => setIsExpanded(!isExpanded)}
-        >
-          <div className="w-4 h-0.5 bg-amber-600 transition-all duration-300"></div>
-          <div className="w-4 h-0.5 bg-amber-600 transition-all duration-300"></div>
-          <div className="w-4 h-0.5 bg-amber-600 transition-all duration-300"></div>
-        </button>
-      </div>
-
-      {/* 聊天记录列表 */}
-      <div className={`
-        transition-all duration-300 group-hover:opacity-100
-        h-[calc(100vh-120px)]
-        ${isExpanded ? 'opacity-100' : 'opacity-0'}
-      `}
+    <TooltipProvider>
+      <aside
+        className={cn(
+          'h-full bg-background border-r-3 transition-all duration-300 ease-in-out relative',
+          'w-0 md:w-14',
+          'hover:w-80 group',
+          isExpanded && 'absolute w-4/5 md:relative md:w-80 z-50',
+        )}
       >
-        <div className={`p-2 group-hover:opacity-100 ${isExpanded ? 'opacity-100' : 'opacity-0'}`}>
-          <div className={`
-            transition-all duration-300 whitespace-nowrap
-          `}
-          >
-            <h3 className="text-sm font-medium text-gray-300 mb-3 px-2">
-              聊天记录
-            </h3>
-          </div>
+        {/* 展开按钮 */}
+        <div className="sticky top-0 z-10 p-3 bg-background border-b">
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button
+                variant="ghost"
+                size="icon"
+                className="w-8 h-8"
+                onClick={() => setIsExpanded(!isExpanded)}
+              >
+                <Menu className="w-4 h-4" />
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent side="right">
+              <p>切换菜单</p>
+            </TooltipContent>
+          </Tooltip>
+        </div>
 
-          <ul className="space-y-1 max-h-[calc(100vh-120px)] pb-16 overflow-y-auto custom-scrollbar" onClick={handleChatSelect}>
-            {Object.entries(history)
-              .map(([key, chat]) => (
-                <div key={key}>
-                  <li id={chat.id} className="relative group/item hover:bg-gray-700 transition-colors rounded-xl duration-200">
-                    <button
-                      type="button"
-                      className={`
-                          w-full text-left p-3 pr-12 rounded-lg transition-all duration-200
-                          ${currentChatId === chat.id ? 'bg-gray-700 border-l-2 border-blue-500' : ''}
-                        `}
-                    >
-                      <div className="flex flex-col space-y-1">
-                        <div className="text-sm text-gray-200 font-medium truncate">
-                          {getFirstMessage(chat.messages)}
-                        </div>
-                        <div className="text-xs text-gray-500">
-                          {chat.messages?.length || 0}
-                          {' '}
-                          条消息
-                        </div>
+        {/* 聊天记录列表 */}
+        <div className={cn(
+          'transition-all duration-300 h-[calc(100vh-120px)]',
+          'group-hover:opacity-100',
+          isExpanded ? 'opacity-100' : 'opacity-0 md:opacity-0',
+        )}
+        >
+          <div className={cn(
+            'p-3 transition-all duration-300',
+            'group-hover:opacity-100',
+            isExpanded ? 'opacity-100' : 'opacity-0',
+          )}
+          >
+            <div className="flex items-center gap-2 mb-4">
+              <MessageSquare className="w-4 h-4 text-muted-foreground" />
+              <h3 className="text-sm font-medium text-foreground whitespace-nowrap">
+                聊天记录
+              </h3>
+            </div>
+
+            <ScrollArea className="h-[calc(100vh-200px)]">
+              <div className="space-y-1" onClick={handleChatSelect}>
+                {Object.entries(history).map(([key, chat]) => (
+                  <div
+                    key={key}
+                    data-chat-item
+                    data-chat-id={chat.id}
+                    className={cn(
+                      'group/item rounded-lg transition-colors duration-200',
+                      'hover:bg-accent cursor-pointer flex items-center p-3',
+                      currentChatId === chat.id && 'bg-accent border-l-2 border-primary',
+                    )}
+                    onClick={handleChatSelect}
+                  >
+                    {/* 聊天内容区域 */}
+                    <div className="flex-1 min-w-0 mr-2">
+                      <div className="text-sm font-medium text-foreground truncate">
+                        {getFirstMessage(chat.messages)}
                       </div>
-                    </button>
+                      <div className="text-xs text-muted-foreground">
+                        {chat.messages?.length || 0}
+                        {' '}
+                        条消息
+                      </div>
+                    </div>
 
                     {/* 删除按钮 */}
-                    <button
-                      type="button"
-                      className="delete-button absolute right-2 top-1/2 transform -translate-y-1/2 w-6 h-6 flex items-center justify-center text-gray-400 hover:text-red-400 hover:bg-red-900/20 rounded transition-all duration-200"
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="h-6 w-6 text-muted-foreground hover:text-destructive hover:bg-destructive/10"
+                      data-delete-button
                       onClick={e => handleDeleteChat(e, chat.id)}
-                      aria-label="删除对话"
                     >
-                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                      </svg>
-                    </button>
-                  </li>
-                  <div>
-
+                      <Trash2 className="w-3 h-3" />
+                    </Button>
                   </div>
-                </div>
-              ))}
-          </ul>
+                ))}
+              </div>
+            </ScrollArea>
+          </div>
         </div>
-      </div>
 
-      {/* 底部操作 */}
-      <div className={`
-        sticky bottom-0 left-0 right-0 p-3 border-t border-gray-700 bg-gray-900
-        transition-opacity duration-300 ${isExpanded ? '' : 'hidden md:block'}
-      `}
-      >
-        <button
-          type="button"
-          className="w-8 py-2 px-3 text-sm text-gray-300 hover:text-white hover:bg-gray-700 rounded-lg transition-colors duration-200"
-          onClick={onAddNewChat}
+        <Separator />
+
+        {/* 底部操作 */}
+        <div className={cn(
+          'sticky bottom-0 p-3 bg-background',
+          'transition-opacity duration-300',
+          isExpanded ? '' : 'hidden md:block',
+        )}
         >
-          +
-        </button>
-      </div>
-    </aside>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button
+                variant="outline"
+                size="icon"
+                className="w-8 h-8"
+                onClick={onAddNewChat}
+              >
+                <Plus className="w-4 h-4" />
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent side="right">
+              <p>新建对话</p>
+            </TooltipContent>
+          </Tooltip>
+        </div>
+      </aside>
+    </TooltipProvider>
   )
 }
