@@ -154,9 +154,9 @@ export default function MarkdownCard({ role, content }: ChatCardProps) {
           parts.push(
             <div
               key={`text-${currentIndex}`}
-              className="prose prose-sm max-w-none dark:prose-invert 
-                prose-headings:text-inherit prose-p:text-inherit prose-strong:text-inherit 
-                prose-em:text-inherit prose-code:text-inherit prose-pre:text-inherit 
+              className="prose prose-sm max-w-none dark:prose-invert
+                prose-headings:text-inherit prose-p:text-inherit prose-strong:text-inherit
+                prose-em:text-inherit prose-code:text-inherit prose-pre:text-inherit
                 prose-a:text-blue-600 dark:prose-a:text-blue-400
                 prose-code:break-words prose-pre:break-words
                 [&_*]:break-words [&_code]:whitespace-pre-wrap
@@ -184,9 +184,9 @@ export default function MarkdownCard({ role, content }: ChatCardProps) {
         parts.push(
           <div
             key={`text-${currentIndex}`}
-            className="prose prose-sm max-w-none dark:prose-invert 
-              prose-headings:text-inherit prose-p:text-inherit prose-strong:text-inherit 
-              prose-em:text-inherit prose-code:text-inherit prose-pre:text-inherit 
+            className="prose prose-sm max-w-none dark:prose-invert
+              prose-headings:text-inherit prose-p:text-inherit prose-strong:text-inherit
+              prose-em:text-inherit prose-code:text-inherit prose-pre:text-inherit
               prose-a:text-blue-600 dark:prose-a:text-blue-400
               prose-code:break-words prose-pre:break-words
               [&_*]:break-words [&_code]:whitespace-pre-wrap
@@ -200,9 +200,9 @@ export default function MarkdownCard({ role, content }: ChatCardProps) {
     if (parts.length === 0) {
       return (
         <div
-          className="prose prose-sm max-w-none dark:prose-invert 
-            prose-headings:text-inherit prose-p:text-inherit prose-strong:text-inherit 
-            prose-em:text-inherit prose-code:text-inherit prose-pre:text-inherit 
+          className="prose prose-sm max-w-none dark:prose-invert
+            prose-headings:text-inherit prose-p:text-inherit prose-strong:text-inherit
+            prose-em:text-inherit prose-code:text-inherit prose-pre:text-inherit
             prose-a:text-blue-600 dark:prose-a:text-blue-400
             prose-code:break-words prose-pre:break-words
             [&_*]:break-words [&_code]:whitespace-pre-wrap
@@ -220,10 +220,11 @@ export default function MarkdownCard({ role, content }: ChatCardProps) {
   return (
     <div className={cn('flex w-full px-2 sm:px-4', config.containerClass)}>
       <div className={cn(
-        'flex items-start gap-2 sm:gap-3 min-w-0 w-full', 
-        config.maxWidth, 
-        isUser && 'flex-row-reverse'
-      )}>
+        'flex items-start gap-2 sm:gap-3 min-w-0 w-full',
+        config.maxWidth,
+        isUser && 'flex-row-reverse',
+      )}
+      >
         <div className="flex flex-col items-center gap-1 flex-shrink-0">
           <Avatar className="w-6 h-6 sm:w-8 sm:h-8">
             <AvatarFallback className={cn('text-xs font-semibold', config.avatarClass)}>
@@ -236,9 +237,10 @@ export default function MarkdownCard({ role, content }: ChatCardProps) {
         </div>
 
         <Card className={cn(
-          'transition-colors py-2 sm:py-3 min-w-0 flex-1', 
-          config.cardClass
-        )}>
+          'transition-colors py-2 sm:py-3 min-w-0 flex-1',
+          config.cardClass,
+        )}
+        >
           <CardContent className="p-3 sm:p-6">
             <div className="text-sm leading-relaxed break-words overflow-hidden">
               {parseContent(content)}
