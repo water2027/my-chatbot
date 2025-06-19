@@ -1,9 +1,15 @@
 'use client'
 
 import type { FormEvent } from 'react'
+import { AlertTriangle, CheckCircle, Loader2, Lock, Shield } from 'lucide-react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { useEffect, useState } from 'react'
+import { Alert, AlertDescription } from '@/components/ui/alert'
+import { Button } from '@/components/ui/button'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
 import { createClient } from '@/utils/supabase/browser'
 
 export default function ResetPasswordPage() {
@@ -83,17 +89,17 @@ export default function ResetPasswordPage() {
       const confirmPassword = form.get('confirmPassword')?.toString()
 
       if (!password || !confirmPassword) {
-        setError('需要填写完整')
+        setError('Please fill in all fields')
         return
       }
 
       if (password.length < 6) {
-        setError('至少六个字符')
+        setError('Password must be at least 6 characters')
         return
       }
 
       if (password !== confirmPassword) {
-        setError('两次密码不同')
+        setError('Passwords do not match')
         return
       }
 
@@ -113,7 +119,7 @@ export default function ResetPasswordPage() {
       }, 1000)
     }
     catch (error: any) {
-      setError(error.message || 'fail')
+      setError(error.message || 'Failed to reset password')
     }
     finally {
       setLoading(false)
@@ -122,19 +128,23 @@ export default function ResetPasswordPage() {
 
   if (checkingSession) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
-        <div className="max-w-md w-full space-y-8">
-          <div>
-            <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
-              验证中...
-            </h2>
-            <p className="mt-2 text-center text-sm text-gray-600">
-              正在验证重置链接
-            </p>
-          </div>
-          <div className="flex justify-center">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600"></div>
-          </div>
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 py-12 px-4 sm:px-6 lg:px-8">
+        <div className="w-full max-w-md">
+          <Card className="shadow-2xl border-0 bg-white/80 backdrop-blur-sm">
+            <CardContent className="pt-8 text-center space-y-6">
+              <div className="mx-auto w-16 h-16 bg-gradient-to-r from-indigo-500 to-purple-600 rounded-full flex items-center justify-center">
+                <Loader2 className="w-8 h-8 text-white animate-spin" />
+              </div>
+              <div className="space-y-2">
+                <h2 className="text-2xl font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">
+                  验证中...
+                </h2>
+                <p className="text-gray-600">
+                  正在验证重置链接
+                </p>
+              </div>
+            </CardContent>
+          </Card>
         </div>
       </div>
     )
@@ -142,38 +152,50 @@ export default function ResetPasswordPage() {
 
   if (!validSession) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
-        <div className="max-w-md w-full space-y-8">
-          <div>
-            <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
-              链接无效或已过期
-            </h2>
-            <p className="mt-2 text-center text-sm text-gray-600">
-              请重新申请重置密码
-            </p>
-          </div>
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-red-50 via-orange-50 to-yellow-50 py-12 px-4 sm:px-6 lg:px-8">
+        <div className="w-full max-w-md">
+          <Card className="shadow-2xl border-0 bg-white/80 backdrop-blur-sm">
+            <CardContent className="pt-8 text-center space-y-6">
+              <div className="mx-auto w-16 h-16 bg-gradient-to-r from-red-500 to-orange-600 rounded-full flex items-center justify-center">
+                <AlertTriangle className="w-8 h-8 text-white" />
+              </div>
+              <div className="space-y-2">
+                <h2 className="text-2xl font-bold bg-gradient-to-r from-red-600 to-orange-600 bg-clip-text text-transparent">
+                  链接无效或已过期
+                </h2>
+                <p className="text-gray-600">
+                  请重新申请重置密码
+                </p>
+              </div>
 
-          <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">
-            <p className="text-sm">
-              重置密码链接无效或已过期，请返回登录页面重新申请。
-            </p>
-          </div>
+              <Alert variant="destructive" className="border-red-200 bg-red-50">
+                <AlertDescription className="text-red-700">
+                  重置密码链接无效或已过期，请返回登录页面重新申请。
+                </AlertDescription>
+              </Alert>
 
-          <div className="space-y-4">
-            <Link
-              href="/auth/login"
-              className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-            >
-              返回登录
-            </Link>
+              <div className="space-y-3">
+                <Button
+                  asChild
+                  className="w-full h-12 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white font-semibold rounded-lg transition-all duration-200 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
+                >
+                  <Link href="/auth/login">
+                    返回登录
+                  </Link>
+                </Button>
 
-            <Link
-              href="/auth/forgot"
-              className="group relative w-full flex justify-center py-2 px-4 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-            >
-              重新申请重置密码
-            </Link>
-          </div>
+                <Button
+                  asChild
+                  variant="outline"
+                  className="w-full h-12 border-gray-200 hover:bg-gray-50 transition-all duration-200 hover:shadow-md"
+                >
+                  <Link href="/auth/forgot">
+                    重新申请重置密码
+                  </Link>
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
         </div>
       </div>
     )
@@ -181,114 +203,135 @@ export default function ResetPasswordPage() {
 
   if (success) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
-        <div className="max-w-md w-full space-y-8">
-          <div>
-            <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
-              密码重置成功
-            </h2>
-            <p className="mt-2 text-center text-sm text-gray-600">
-              您的密码已成功重置
-            </p>
-          </div>
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-green-50 via-emerald-50 to-teal-50 py-12 px-4 sm:px-6 lg:px-8">
+        <div className="w-full max-w-md">
+          <Card className="shadow-2xl border-0 bg-white/80 backdrop-blur-sm">
+            <CardContent className="pt-8 text-center space-y-6">
+              <div className="mx-auto w-16 h-16 bg-gradient-to-r from-green-500 to-emerald-600 rounded-full flex items-center justify-center">
+                <CheckCircle className="w-8 h-8 text-white" />
+              </div>
+              <div className="space-y-2">
+                <h2 className="text-2xl font-bold bg-gradient-to-r from-green-600 to-emerald-600 bg-clip-text text-transparent">
+                  密码重置成功
+                </h2>
+                <p className="text-gray-600">
+                  您的密码已成功重置
+                </p>
+              </div>
 
-          <div className="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded">
-            <p className="text-sm">
-              密码已成功更新，即将自动跳转到登录页面...
-            </p>
-          </div>
+              <Alert className="border-green-200 bg-green-50">
+                <CheckCircle className="h-4 w-4 text-green-600" />
+                <AlertDescription className="text-green-700">
+                  密码已成功更新，即将自动跳转到登录页面...
+                </AlertDescription>
+              </Alert>
 
-          <div>
-            <Link
-              href="/auth/login"
-              className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-            >
-              立即登录
-            </Link>
-          </div>
+              <Button
+                asChild
+                className="w-full h-12 bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white font-semibold rounded-lg transition-all duration-200 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
+              >
+                <Link href="/auth/login">
+                  立即登录
+                </Link>
+              </Button>
+            </CardContent>
+          </Card>
         </div>
       </div>
     )
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-md w-full space-y-8">
-        <div>
-          <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
-            设置新密码
-          </h2>
-          <p className="mt-2 text-center text-sm text-gray-600">
-            请输入您的新密码
-          </p>
-        </div>
-
-        <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
-          <div className="rounded-md shadow-sm -space-y-px">
-            <div>
-              <label htmlFor="password" className="sr-only">
-                新密码
-              </label>
-              <input
-                id="password"
-                name="password"
-                type="password"
-                autoComplete="new-password"
-                required
-                minLength={6}
-                className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-t-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
-                placeholder="新密码（至少6位）"
-              />
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 py-12 px-4 sm:px-6 lg:px-8">
+      <div className="w-full max-w-md">
+        <Card className="shadow-2xl border-0 bg-white/80 backdrop-blur-sm">
+          <CardHeader className="space-y-1 pb-8">
+            <div className="mx-auto w-12 h-12 bg-gradient-to-r from-indigo-500 to-purple-600 rounded-full flex items-center justify-center mb-4">
+              <Shield className="w-6 h-6 text-white" />
             </div>
-            <div>
-              <label htmlFor="confirmPassword" className="sr-only">
-                确认新密码
-              </label>
-              <input
-                id="confirmPassword"
-                name="confirmPassword"
-                type="password"
-                autoComplete="new-password"
-                required
-                minLength={6}
-                className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-b-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
-                placeholder="确认新密码"
-              />
-            </div>
-          </div>
+            <CardTitle className="text-3xl font-bold text-center bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">
+              设置新密码
+            </CardTitle>
+            <CardDescription className="text-center text-gray-600">
+              请输入您的新密码
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-6">
+            <form onSubmit={handleSubmit} className="space-y-5">
+              <div className="space-y-2">
+                <Label htmlFor="password" className="text-gray-700 font-medium">
+                  新密码
+                </Label>
+                <div className="relative">
+                  <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+                  <Input
+                    id="password"
+                    name="password"
+                    type="password"
+                    placeholder="新密码（至少6位）"
+                    autoComplete="new-password"
+                    required
+                    minLength={6}
+                    disabled={loading}
+                    className="pl-10 h-12 border-gray-200 focus:border-indigo-500 focus:ring-indigo-500 transition-colors"
+                  />
+                </div>
+              </div>
 
-          <div className="text-xs text-gray-500">
-            <ul className="list-disc list-inside space-y-1">
-              <li>密码长度至少为6位</li>
-              <li>建议包含字母、数字和特殊字符</li>
-            </ul>
-          </div>
+              <div className="space-y-2">
+                <Label htmlFor="confirmPassword" className="text-gray-700 font-medium">
+                  确认新密码
+                </Label>
+                <div className="relative">
+                  <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+                  <Input
+                    id="confirmPassword"
+                    name="confirmPassword"
+                    type="password"
+                    placeholder="确认新密码"
+                    autoComplete="new-password"
+                    required
+                    minLength={6}
+                    disabled={loading}
+                    className="pl-10 h-12 border-gray-200 focus:border-indigo-500 focus:ring-indigo-500 transition-colors"
+                  />
+                </div>
+              </div>
 
-          {error && (
-            <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">
-              {error}
-            </div>
-          )}
+              <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                <h4 className="text-sm font-medium text-blue-900 mb-2">密码要求：</h4>
+                <ul className="text-xs text-blue-700 space-y-1">
+                  <li>• 密码长度至少为6位</li>
+                  <li>• 建议包含字母、数字和特殊字符</li>
+                </ul>
+              </div>
 
-          <div>
-            <button
-              type="submit"
-              disabled={loading}
-              className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              {loading ? '重置中...' : '重置密码'}
-            </button>
-          </div>
+              {error && (
+                <Alert variant="destructive" className="border-red-200 bg-red-50">
+                  <AlertDescription className="text-red-700">{error}</AlertDescription>
+                </Alert>
+              )}
 
-          <div className="text-center">
-            <Link
-              href="/auth/login"
-              className="font-medium text-indigo-600 hover:text-indigo-500"
-            >
-              返回登录页面
-            </Link>
-          </div>
-        </form>
+              <Button
+                type="submit"
+                className="w-full h-12 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white font-semibold rounded-lg transition-all duration-200 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
+                disabled={loading}
+              >
+                {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                {loading ? '重置中...' : '重置密码'}
+              </Button>
+
+              <div className="text-center">
+                <Link
+                  href="/auth/login"
+                  className="text-sm font-medium text-indigo-600 hover:text-indigo-500 transition-colors underline underline-offset-4"
+                >
+                  返回登录页面
+                </Link>
+              </div>
+            </form>
+          </CardContent>
+        </Card>
       </div>
     </div>
   )
