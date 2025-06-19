@@ -1,81 +1,15 @@
 'use client'
 
-import type { FormEvent } from 'react'
-import { Loader2, Lock, Mail } from 'lucide-react'
+import { Lock, Mail } from 'lucide-react'
 import Link from 'next/link'
-import { useRouter } from 'next/navigation'
-import { useState } from 'react'
-import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Separator } from '@/components/ui/separator'
-import { createClient } from '@/utils/supabase/browser'
+import { login, loginWithGoogle } from '@/actions/auth'
 
 export default function LoginPage() {
-  const [loading, setLoading] = useState(false)
-  const [error, setError] = useState('')
-  const router = useRouter()
-
-  const handleEmailLogin = async (e: FormEvent) => {
-    e.preventDefault()
-    setLoading(true)
-    setError('')
-
-    try {
-      const el = e.target as HTMLFormElement
-      if (!el)
-        return
-      const form = new FormData(el)
-      const email = form.get('email')?.toString()
-      const password = form.get('password')?.toString()
-      if (!email || !password)
-        return
-      const supabase = createClient()
-      const { data, error } = await supabase.auth.signInWithPassword({
-        email,
-        password,
-      })
-
-      if (error) {
-        throw error
-      }
-      if (data.user) {
-        router.push('/')
-      }
-    }
-    catch (error: any) {
-      setError(error.message || 'Login failed')
-    }
-    finally {
-      setLoading(false)
-    }
-  }
-
-  const handleGoogleLogin = async () => {
-    setLoading(true)
-    setError('')
-
-    try {
-      const supabase = createClient()
-      const { error } = await supabase.auth.signInWithOAuth({
-        provider: 'google',
-        options: {
-          redirectTo: `${window.location.origin}/auth/callback`,
-        },
-      })
-
-      if (error) {
-        throw error
-      }
-    }
-    catch (error: any) {
-      setError(error.message || 'Google login failed')
-      setLoading(false)
-    }
-  }
-
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 py-12 px-4 sm:px-6 lg:px-8">
       <div className="w-full max-w-md">
@@ -99,7 +33,7 @@ export default function LoginPage() {
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-6">
-            <form onSubmit={handleEmailLogin} className="space-y-5">
+            <form action={login} className="space-y-5">
               <div className="space-y-2">
                 <Label htmlFor="email" className="text-gray-700 font-medium">
                   邮箱地址
@@ -113,7 +47,6 @@ export default function LoginPage() {
                     placeholder="请输入您的邮箱"
                     autoComplete="email"
                     required
-                    disabled={loading}
                     className="pl-10 h-12 border-gray-200 focus:border-indigo-500 focus:ring-indigo-500 transition-colors"
                   />
                 </div>
@@ -132,7 +65,6 @@ export default function LoginPage() {
                     placeholder="请输入您的密码"
                     autoComplete="current-password"
                     required
-                    disabled={loading}
                     className="pl-10 h-12 border-gray-200 focus:border-indigo-500 focus:ring-indigo-500 transition-colors"
                   />
                 </div>
@@ -147,19 +79,11 @@ export default function LoginPage() {
                 </Link>
               </div>
 
-              {error && (
-                <Alert variant="destructive" className="border-red-200 bg-red-50">
-                  <AlertDescription className="text-red-700">{error}</AlertDescription>
-                </Alert>
-              )}
-
               <Button
                 type="submit"
                 className="w-full h-12 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white font-semibold rounded-lg transition-all duration-200 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
-                disabled={loading}
               >
-                {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                {loading ? '登录中...' : '登录'}
+                登录
               </Button>
             </form>
 
@@ -172,14 +96,12 @@ export default function LoginPage() {
               </div>
             </div>
 
+            <form action={loginWithGoogle}>
             <Button
-              type="button"
+              type="submit"
               variant="outline"
               className="w-full h-12 border-gray-200 hover:bg-gray-50 transition-all duration-200 hover:shadow-md"
-              onClick={handleGoogleLogin}
-              disabled={loading}
             >
-              {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
               <svg className="mr-2 h-5 w-5" viewBox="0 0 24 24">
                 <path
                   fill="#4285F4"
@@ -200,6 +122,7 @@ export default function LoginPage() {
               </svg>
               <span className="font-medium text-gray-700">使用 Google 登录</span>
             </Button>
+            </form>
           </CardContent>
         </Card>
       </div>
