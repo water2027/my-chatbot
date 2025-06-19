@@ -1,22 +1,43 @@
-// 事已至此, 暂时纯客户端吧
 'use client'
+import { Menu } from 'lucide-react'
 import { useRouter } from 'next/navigation'
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { toast } from 'sonner'
 import AvatarSection from '@/components/AvatarSection'
 import ChatContainer from '@/components/ChatContainer'
 import HistoryAside from '@/components/HistoryAside'
 import { MessageForm } from '@/components/MessageForm'
+import { Button } from '@/components/ui/button'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select'
+import {
+  TooltipProvider,
+} from '@/components/ui/tooltip'
 import useChat from '@/hooks/useChat'
+import { cn } from '@/lib/utils'
 import { useAuthStore } from '@/store/authStore'
 import localStorageHandler from '@/utils/localStorageHandler'
 
 export default function Home() {
   const models = ['gpt-4o-mini', 'gpt-4']
-  let model = models[0]
+  const [model, setModel] = useState(models[0])
+  const [sidebarExpanded, setSidebarExpanded] = useState(false)
   const { isAuthenticated, signOut, initialize } = useAuthStore()
   const router = useRouter()
-  const { addNewChat, deleteChat, selectChat, currentChat, chatHistory, submitMessage, content } = useChat(localStorageHandler)
+  const {
+    addNewChat,
+    deleteChat,
+    selectChat,
+    currentChat,
+    chatHistory,
+    submitMessage,
+    content,
+  } = useChat(localStorageHandler)
 
   useEffect(() => {
     initialize()
@@ -39,24 +60,94 @@ export default function Home() {
     router.push('/auth/login')
   }
 
+  const toggleSidebar = () => {
+    setSidebarExpanded(!sidebarExpanded)
+  }
+
+  const closeSidebar = () => {
+    setSidebarExpanded(false)
+  }
+
   return (
-    <div className="w-full h-full flex flex-row">
-      <HistoryAside onDeleteChat={deleteChat} onAddNewChat={addNewChat} onSelectChat={selectChat} currentChatId={currentChat.id} history={chatHistory} />
-      <main className="w-full h-full flex flex-col py-2 pl-16 pr-4 md:pl-8">
-        {/* 头部栏, 放头像和模型选择 */}
-        <div className="flex flex-row justify-between">
-          <select name="model" id="model" onInput={(e) => { model = (e.target as HTMLSelectElement).value }}>
-            {models.map(model => (
-              <option key={model} value={model}>{model}</option>
-            ))}
-          </select>
-          <AvatarSection isOnline={isAuthenticated} onLoginClick={onLoginClick} onLogoutClick={onLogoutClick} />
-        </div>
-        {/* 对话列表 */}
-        <ChatContainer currentChat={currentChat} content={content} />
-        {/* 输入框 */}
-        <MessageForm handleSubmit={handleSubmit} />
-      </main>
-    </div>
+    <TooltipProvider>
+      <div className="w-full h-screen flex flex-row bg-background relative">
+        {sidebarExpanded && (
+          <div
+            className="fixed inset-0 bg-black/50 z-40 md:hidden"
+            onClick={closeSidebar}
+          />
+        )}
+
+        <HistoryAside
+          onDeleteChat={deleteChat}
+          onAddNewChat={addNewChat}
+          onSelectChat={selectChat}
+          currentChatId={currentChat.id}
+          history={chatHistory}
+          isExpanded={sidebarExpanded}
+          onClose={closeSidebar}
+        />
+
+        <main className={cn(
+          'flex-1 h-full flex flex-col min-w-0 transition-all duration-300',
+          'md:ml-0',
+        )}
+        >
+          <header className="flex-shrink-0 border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+            <div className="flex items-center gap-4 p-4">
+              <Button
+                variant="ghost"
+                size="icon"
+                className="md:hidden flex-shrink-0"
+                onClick={toggleSidebar}
+              >
+                <Menu className="h-4 w-4" />
+              </Button>
+
+              <div className="flex-1 flex items-center justify-center md:justify-start">
+                <div className="flex items-center gap-2">
+                  <span className="text-sm font-medium text-muted-foreground hidden sm:inline">
+                    Model:
+                  </span>
+                  <Select value={model} onValueChange={setModel}>
+                    <SelectTrigger className="w-[140px] sm:w-[180px]">
+                      <SelectValue placeholder="Select model" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {models.map(modelOption => (
+                        <SelectItem key={modelOption} value={modelOption}>
+                          {modelOption}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+
+              <div className="flex-shrink-0">
+                <AvatarSection
+                  isOnline={isAuthenticated}
+                  onLoginClick={onLoginClick}
+                  onLogoutClick={onLogoutClick}
+                />
+              </div>
+            </div>
+          </header>
+
+          <div className="flex-1 flex flex-col min-h-0">
+            <ChatContainer
+              currentChat={currentChat}
+              content={content}
+            />
+
+            <div className="flex-shrink-0 border-t mt-auto bg-background p-4">
+              <div className="max-w-4xl mx-auto">
+                <MessageForm handleSubmit={handleSubmit} />
+              </div>
+            </div>
+          </div>
+        </main>
+      </div>
+    </TooltipProvider>
   )
 }

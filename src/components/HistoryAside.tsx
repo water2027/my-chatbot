@@ -5,6 +5,7 @@ import {
   MessageSquare,
   Plus,
   Trash2,
+  X,
 } from 'lucide-react'
 import { useState } from 'react'
 import { Button } from '@/components/ui/button'
@@ -13,7 +14,6 @@ import { Separator } from '@/components/ui/separator'
 import {
   Tooltip,
   TooltipContent,
-  TooltipProvider,
   TooltipTrigger,
 } from '@/components/ui/tooltip'
 import { cn } from '@/lib/utils'
@@ -26,6 +26,8 @@ export interface ChatHistoryProps {
   onAddNewChat: () => void
   onDeleteChat: (chatId: string) => void
   currentChatId: string
+  isExpanded: boolean
+  onClose: () => void
 }
 
 export default function HistoryAside({
@@ -34,12 +36,14 @@ export default function HistoryAside({
   currentChatId,
   onAddNewChat,
   onDeleteChat,
+  isExpanded,
+  onClose,
 }: ChatHistoryProps) {
-  const [isExpanded, setIsExpanded] = useState(false)
+  const [isHovered, setIsHovered] = useState(false)
+  const [isPinned, setIsPinned] = useState(false)
 
   const handleChatSelect = (event: MouseEvent) => {
     const el = event.target as HTMLElement
-    // 检查是否点击了删除按钮
     if (el.closest('[data-delete-button]')) {
       return
     }
@@ -48,7 +52,11 @@ export default function HistoryAside({
     const id = listItem?.dataset.chatId
     if (!listItem || !id)
       return
+
     onSelectChat(id)
+    if (window.innerWidth < 768) {
+      onClose()
+    }
   }
 
   const handleDeleteChat = (event: MouseEvent, chatId: string) => {
@@ -56,131 +64,192 @@ export default function HistoryAside({
     onDeleteChat(chatId)
   }
 
+  const handleAddNewChat = () => {
+    onAddNewChat()
+    if (window.innerWidth < 768) {
+      onClose()
+    }
+  }
+
+  const handleTogglePin = () => {
+    setIsPinned(!isPinned)
+  }
+
   const getFirstMessage = (messages: any[]) => {
     if (!messages || messages.length === 0)
       return '新对话'
     const firstUserMessage = messages.find(msg => msg.role === 'user')
-    return `${firstUserMessage?.content?.slice(0, 10)}...` || '新对话'
+    return `${firstUserMessage?.content?.slice(0, 20)}...` || '新对话'
   }
 
+  const shouldShowContent = isExpanded || (typeof window !== 'undefined' && window.innerWidth >= 768 && (isPinned || isHovered))
+
   return (
-    <TooltipProvider>
-      <aside
-        className={cn(
-          'h-full bg-background border-r-3 transition-all duration-300 ease-in-out relative',
-          'w-0 md:w-14',
-          'hover:w-80 group',
-          isExpanded && 'absolute w-4/5 md:relative md:w-80 z-50',
-        )}
-      >
-        {/* 展开按钮 */}
-        <div className="sticky top-0 z-10 p-3 bg-background border-b">
+    <aside
+      className={cn(
+        'h-full bg-background border-r transition-all duration-300 ease-in-out',
+        'flex flex-col',
+        'fixed left-0 top-0 z-50',
+        'md:relative md:left-auto md:top-auto md:z-auto',
+        isExpanded || (isPinned && typeof window !== 'undefined' && window.innerWidth >= 768)
+          ? 'w-80'
+          : 'w-0 md:w-14 overflow-hidden',
+        isExpanded ? 'translate-x-0' : '-translate-x-full md:translate-x-0',
+        !isPinned && 'md:hover:w-80',
+      )}
+      onMouseEnter={() => !isPinned && setIsHovered(true)}
+      onMouseLeave={() => !isPinned && setIsHovered(false)}
+    >
+      {/* Header */}
+      <div className="flex-shrink-0 p-3 bg-background border-b">
+        <div className="flex items-center justify-between">
           <Tooltip>
             <TooltipTrigger asChild>
               <Button
                 variant="ghost"
                 size="icon"
-                className="w-8 h-8"
-                onClick={() => setIsExpanded(!isExpanded)}
+                className={cn(
+                  'h-8 w-8 hidden md:flex',
+                  isPinned && 'bg-accent',
+                )}
+                onClick={handleTogglePin}
               >
-                <Menu className="w-4 h-4" />
+                <Menu className="h-4 w-4" />
               </Button>
             </TooltipTrigger>
             <TooltipContent side="right">
-              <p>{isExpanded ? '取消固定' : '固定菜单'}</p>
+              <p>{isPinned ? '取消固定侧边栏' : '固定侧边栏'}</p>
             </TooltipContent>
           </Tooltip>
-        </div>
 
-        {/* 聊天记录列表 */}
-        <div className={cn(
-          'transition-all duration-300 h-[calc(100vh-120px)]',
-          'group-hover:opacity-100',
-          isExpanded ? 'opacity-100' : 'opacity-0 md:opacity-0',
-        )}
-        >
+          <Button
+            variant="ghost"
+            size="icon"
+            className="h-8 w-8 md:hidden"
+            onClick={onClose}
+          >
+            <X className="h-4 w-4" />
+          </Button>
+
           <div className={cn(
-            'p-3 transition-all duration-300',
-            'group-hover:opacity-100',
-            isExpanded ? 'opacity-100' : 'opacity-0',
+            'flex items-center gap-2 transition-opacity duration-200',
+            shouldShowContent ? 'opacity-100' : 'opacity-0',
           )}
           >
-            <div className="flex items-center gap-2 mb-4">
-              <MessageSquare className="w-4 h-4 text-muted-foreground" />
-              <h3 className="text-sm font-medium text-foreground whitespace-nowrap">
-                聊天记录
-              </h3>
-            </div>
-
-            <ScrollArea className="h-[calc(100vh-200px)]">
-              <div className="space-y-1" onClick={handleChatSelect}>
-                {Object.entries(history).map(([key, chat]) => (
-                  <div
-                    key={key}
-                    data-chat-item
-                    data-chat-id={chat.id}
-                    className={cn(
-                      'group/item rounded-lg transition-colors duration-200',
-                      'hover:bg-accent cursor-pointer flex items-center p-3',
-                      currentChatId === chat.id && 'bg-accent border-l-2 border-primary',
-                    )}
-                    onClick={handleChatSelect}
-                  >
-                    {/* 聊天内容区域 */}
-                    <div className="flex-1 min-w-0 mr-2">
-                      <div className="text-sm font-medium text-foreground truncate">
-                        {getFirstMessage(chat.messages)}
-                      </div>
-                      <div className="text-xs text-muted-foreground">
-                        {chat.messages?.length || 0}
-                        {' '}
-                        条消息
-                      </div>
-                    </div>
-
-                    {/* 删除按钮 */}
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className="h-6 w-6 text-muted-foreground hover:text-destructive hover:bg-destructive/10"
-                      data-delete-button
-                      onClick={e => handleDeleteChat(e, chat.id)}
-                    >
-                      <Trash2 className="w-3 h-3" />
-                    </Button>
-                  </div>
-                ))}
-              </div>
-            </ScrollArea>
+            <MessageSquare className="h-4 w-4 text-muted-foreground" />
+            <span className="text-sm font-medium whitespace-nowrap">
+              聊天记录
+            </span>
           </div>
+
+          <div className="w-8 hidden md:block" />
         </div>
+      </div>
 
-        <Separator />
+      <div className={cn(
+        'flex-1 min-h-0 transition-opacity duration-200',
+        shouldShowContent ? 'opacity-100' : 'opacity-0',
+      )}
+      >
+        <ScrollArea className="h-full">
+          <div className="p-3 space-y-1">
+            {Object.entries(history).length === 0
+              ? (
+                  <div className="text-center py-8">
+                    <MessageSquare className="h-8 w-8 mx-auto text-muted-foreground mb-2" />
+                    <p className="text-sm text-muted-foreground">暂无对话记录</p>
+                  </div>
+                )
+              : (
+                  <div className="space-y-1" onClick={handleChatSelect}>
+                    {Object.entries(history).map(([key, chat]) => (
+                      <div
+                        key={key}
+                        data-chat-item
+                        data-chat-id={chat.id}
+                        className={cn(
+                          'group/item rounded-lg transition-all duration-200',
+                          'hover:bg-accent cursor-pointer p-3',
+                          'border border-transparent hover:border-border',
+                          currentChatId === chat.id
+                          && 'bg-accent border-primary shadow-sm',
+                        )}
+                      >
+                        <div className="flex items-start justify-between gap-2">
+                          <div className="flex-1 min-w-0">
+                            <div className="text-sm font-medium text-foreground line-clamp-2 mb-1">
+                              {getFirstMessage(chat.messages)}
+                            </div>
+                            <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                              <span>
+                                {chat.messages?.length || 0}
+                                {' '}
+                                条消息
+                              </span>
+                            </div>
+                          </div>
 
-        {/* 底部操作 */}
-        <div className={cn(
-          'sticky bottom-0 p-3 bg-background',
-          'transition-opacity duration-300',
-          isExpanded ? '' : 'hidden md:block',
-        )}
-        >
-          <Tooltip>
-            <TooltipTrigger asChild>
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                className={cn(
+                                  'h-6 w-6 text-muted-foreground flex-shrink-0',
+                                  'hover:text-destructive hover:bg-destructive/10',
+                                  'opacity-0 group-hover/item:opacity-100 transition-opacity',
+                                )}
+                                data-delete-button
+                                onClick={e => handleDeleteChat(e, chat.id)}
+                              >
+                                <Trash2 className="h-3 w-3" />
+                              </Button>
+                            </TooltipTrigger>
+                            <TooltipContent>
+                              <p>删除对话</p>
+                            </TooltipContent>
+                          </Tooltip>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+          </div>
+        </ScrollArea>
+      </div>
+
+      <Separator />
+
+      <div className="flex-shrink-0 p-3 bg-background">
+        {shouldShowContent
+          ? (
               <Button
                 variant="outline"
-                size="icon"
-                className="w-8 h-8"
-                onClick={onAddNewChat}
+                className="w-full"
+                onClick={handleAddNewChat}
               >
-                <Plus className="w-4 h-4" />
+                <Plus className="h-4 w-4 mr-2" />
+                新建对话
               </Button>
-            </TooltipTrigger>
-            <TooltipContent side="right">
-              <p>新建对话</p>
-            </TooltipContent>
-          </Tooltip>
-        </div>
-      </aside>
-    </TooltipProvider>
+            )
+          : (
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button
+                    variant="outline"
+                    size="icon"
+                    className="h-8 w-8 mx-auto"
+                    onClick={handleAddNewChat}
+                  >
+                    <Plus className="h-4 w-4" />
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent side="right">
+                  <p>新建对话</p>
+                </TooltipContent>
+              </Tooltip>
+            )}
+      </div>
+    </aside>
   )
 }

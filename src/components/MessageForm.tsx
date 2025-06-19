@@ -4,7 +4,7 @@ import { Textarea } from '@/components/ui/textarea'
 
 export function MessageForm({ handleSubmit }: { handleSubmit: (formData: FormData) => void }) {
   return (
-    <form action={handleSubmit} className="mt-auto mx-auto w-5/6 md:w-2/3">
+    <form action={handleSubmit} className="mx-auto w-5/6 md:w-2/3">
       <div className="flex gap-2 p-4 border rounded-lg bg-background shadow-sm">
         <Textarea
           name="message"
