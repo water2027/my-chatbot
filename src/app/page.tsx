@@ -6,6 +6,7 @@ import { toast } from 'sonner'
 import AvatarSection from '@/components/AvatarSection'
 import ChatContainer from '@/components/ChatContainer'
 import HistoryAside from '@/components/HistoryAside'
+import { MessageForm } from '@/components/MessageForm'
 import useChat from '@/hooks/useChat'
 import { useAuthStore } from '@/store/authStore'
 import localStorageHandler from '@/utils/localStorageHandler'
@@ -54,10 +55,7 @@ export default function Home() {
         {/* 对话列表 */}
         <ChatContainer currentChat={currentChat} content={content} />
         {/* 输入框 */}
-        <form action={handleSubmit} className="mt-auto mx-auto w-5/6 md:w-2/3 flex flex-row">
-          <textarea className="w-full bg-blue-300 custom-scrollbar resize-none" rows={3} name="message" id="message"></textarea>
-          <button type="submit" className="rounded-full bg-amber-300 h-5 w-5 flex items-center justify-center p-6 m-auto hover:bg-amber-200 transition-colors duration-200">S</button>
-        </form>
+        <MessageForm handleSubmit={handleSubmit} />
       </main>
     </div>
   )
