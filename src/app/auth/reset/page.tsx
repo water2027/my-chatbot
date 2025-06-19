@@ -31,11 +31,9 @@ export default function ResetPasswordPage() {
           setValidSession(false)
         }
         else if (data.session) {
-          console.log('Valid session found')
           setValidSession(true)
         }
         else {
-          console.log('No valid session')
           setValidSession(false)
         }
       }
@@ -51,8 +49,6 @@ export default function ResetPasswordPage() {
     const supabase = createClient()
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, session) => {
-        console.log('Auth state change:', event, session ? 'session exists' : 'no session')
-
         if (event === 'PASSWORD_RECOVERY') {
           setValidSession(true)
           setCheckingSession(false)
