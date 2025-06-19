@@ -87,7 +87,7 @@ export default function HistoryAside({
               </Button>
             </TooltipTrigger>
             <TooltipContent side="right">
-              <p>切换菜单</p>
+              <p>{isExpanded ? '取消固定' : '固定菜单'}</p>
             </TooltipContent>
           </Tooltip>
         </div>
