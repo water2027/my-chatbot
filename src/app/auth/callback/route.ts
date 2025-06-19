@@ -9,7 +9,11 @@ export async function GET(request: NextRequest) {
 
   if (code) {
     const supabase = await createClient()
-    await supabase.auth.exchangeCodeForSession(code)
+    const { error } = await supabase.auth.exchangeCodeForSession(code)
+    if (error) {
+      console.error('Error exchanging code for session:', error)
+      return NextResponse.redirect(`${origin}/auth/error?error=exchangeFail&error_detail=${encodeURIComponent(error.message)}&redirect_uri=/auth/login`)
+    }
   }
 
   return NextResponse.redirect(`${origin}/`)
