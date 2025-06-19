@@ -4,7 +4,12 @@ export default antfu({
   formatters: true,
   react: true,
   rules: {
-    'no-console': ['error', { allow: ['log', 'error']}],
-    'node/prefer-global/process': 'off'
-  }
+    'no-console': ['error', { allow: ['log', 'error'] }],
+    'node/prefer-global/process': 'off',
+  },
+  ignores: [
+    '.next/**',
+    'src/lib/**',
+    'src/components/ui/**',
+  ],
 })
