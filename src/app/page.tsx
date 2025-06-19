@@ -7,6 +7,7 @@ import AvatarSection from '@/components/AvatarSection'
 import ChatContainer from '@/components/ChatContainer'
 import HistoryAside from '@/components/HistoryAside'
 import { MessageForm } from '@/components/MessageForm'
+import { PromptDialog } from '@/components/PromptDialog'
 import { Button } from '@/components/ui/button'
 import {
   Select,
@@ -25,6 +26,10 @@ import localStorageHandler from '@/utils/localStorageHandler'
 
 export default function Home() {
   const [sidebarExpanded, setSidebarExpanded] = useState(false)
+  const [editDialogOpen, setEditDialogOpen] = useState(false)
+  const [editingChatId, setEditingChatId] = useState<string | null>(null)
+  const [editingChatTitle, setEditingChatTitle] = useState('')
+
   const { isAuthenticated, signOut, initialize } = useAuthStore()
   const router = useRouter()
   const {
@@ -39,6 +44,7 @@ export default function Home() {
     chatHistory,
     submitMessage,
     content,
+    setTitle,
   } = useChat(localStorageHandler)
 
   useEffect(() => {
@@ -74,6 +80,29 @@ export default function Home() {
     setSidebarExpanded(false)
   }
 
+  const handleEditChatTitle = (chatId: string) => {
+    const chat = chatHistory[chatId]
+    if (chat) {
+      setEditingChatId(chatId)
+      const currentTitle = chat.title || ''
+      setEditingChatTitle(currentTitle)
+      setEditDialogOpen(true)
+    }
+  }
+
+  const handleConfirmEditTitle = (newTitle: string) => {
+    if (editingChatId && newTitle.trim()) {
+      setTitle(editingChatId, newTitle)
+    }
+    setEditingChatId(null)
+    setEditingChatTitle('')
+  }
+
+  const handleCancelEditTitle = () => {
+    setEditingChatId(null)
+    setEditingChatTitle('')
+  }
+
   return (
     <TooltipProvider>
       <div className="w-full h-screen flex flex-row bg-background relative">
@@ -85,6 +114,7 @@ export default function Home() {
         )}
 
         <HistoryAside
+          onEditChatTitle={handleEditChatTitle}
           onDeleteChat={deleteChat}
           onAddNewChat={addNewChat}
           onSelectChat={selectChat}
@@ -153,6 +183,17 @@ export default function Home() {
             </div>
           </div>
         </main>
+
+        <PromptDialog
+          open={editDialogOpen}
+          onOpenChange={setEditDialogOpen}
+          title="重命名标题"
+          description="输入一个标题"
+          defaultValue={editingChatTitle}
+          placeholder="输入..."
+          onConfirm={handleConfirmEditTitle}
+          onCancel={handleCancelEditTitle}
+        />
       </div>
     </TooltipProvider>
   )

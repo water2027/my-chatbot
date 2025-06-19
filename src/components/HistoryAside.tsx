@@ -1,6 +1,7 @@
 import type { MouseEvent } from 'react'
 import type { ChatHistory } from '@/types/chat'
 import {
+  Edit3,
   Menu,
   MessageSquare,
   Plus,
@@ -25,6 +26,7 @@ export interface ChatHistoryProps {
   onSelectChat: (chatId: string) => void
   onAddNewChat: () => void
   onDeleteChat: (chatId: string) => void
+  onEditChatTitle: (chatId: string) => void
   currentChatId: string
   isExpanded: boolean
   onClose: () => void
@@ -36,6 +38,7 @@ export default function HistoryAside({
   currentChatId,
   onAddNewChat,
   onDeleteChat,
+  onEditChatTitle,
   isExpanded,
   onClose,
 }: ChatHistoryProps) {
@@ -44,7 +47,7 @@ export default function HistoryAside({
 
   const handleChatSelect = (event: MouseEvent) => {
     const el = event.target as HTMLElement
-    if (el.closest('[data-delete-button]')) {
+    if (el.closest('[data-delete-button]') || el.closest('[data-edit-button]')) {
       return
     }
 
@@ -64,6 +67,11 @@ export default function HistoryAside({
     onDeleteChat(chatId)
   }
 
+  const handleEditChatTitle = (event: MouseEvent, chatId: string) => {
+    event.stopPropagation()
+    onEditChatTitle(chatId)
+  }
+
   const handleAddNewChat = () => {
     onAddNewChat()
     if (window.innerWidth < 768) {
@@ -75,11 +83,18 @@ export default function HistoryAside({
     setIsPinned(!isPinned)
   }
 
-  const getFirstMessage = (messages: any[]) => {
-    if (!messages || messages.length === 0)
+  const getTitle = (id: string) => {
+    const message = history[id]
+    if (!message || !message.messages || message.messages.length === 0) {
       return '新对话'
-    const firstUserMessage = messages.find(msg => msg.role === 'user')
-    return `${firstUserMessage?.content?.slice(0, 20)}...` || '新对话'
+    }
+    if (message.title) {
+      return message.title
+    }
+    const firstMessage = message.messages[0]
+    return firstMessage.content.length > 10
+      ? `${firstMessage.content.slice(0, 10)}...`
+      : firstMessage.content
   }
 
   const shouldShowContent = isExpanded || (typeof window !== 'undefined' && window.innerWidth >= 768 && (isPinned || isHovered))
@@ -178,7 +193,7 @@ export default function HistoryAside({
                         <div className="flex items-start justify-between gap-2">
                           <div className="flex-1 min-w-0">
                             <div className="text-sm font-medium text-foreground line-clamp-2 mb-1">
-                              {getFirstMessage(chat.messages)}
+                              {getTitle(chat.id)}
                             </div>
                             <div className="flex items-center gap-2 text-xs text-muted-foreground">
                               <span>
@@ -189,26 +204,47 @@ export default function HistoryAside({
                             </div>
                           </div>
 
-                          <Tooltip>
-                            <TooltipTrigger asChild>
-                              <Button
-                                variant="ghost"
-                                size="icon"
-                                className={cn(
-                                  'h-6 w-6 text-muted-foreground flex-shrink-0',
-                                  'hover:text-destructive hover:bg-destructive/10',
-                                  'opacity-0 group-hover/item:opacity-100 transition-opacity',
-                                )}
-                                data-delete-button
-                                onClick={e => handleDeleteChat(e, chat.id)}
-                              >
-                                <Trash2 className="h-3 w-3" />
-                              </Button>
-                            </TooltipTrigger>
-                            <TooltipContent>
-                              <p>删除对话</p>
-                            </TooltipContent>
-                          </Tooltip>
+                          <div className="hidden md:flex items-center gap-1">
+                            <Tooltip>
+                              <TooltipTrigger asChild>
+                                <Button
+                                  variant="ghost"
+                                  size="icon"
+                                  title="编辑对话标题"
+                                  className={cn(
+                                    'h-6 w-6 text-muted-foreground flex-shrink-0',
+                                    'hover:text-foreground hover:bg-accent',
+                                    'opacity-0 group-hover/item:opacity-100 transition-opacity',
+                                    'cursor-pointer',
+                                  )}
+                                  data-edit-button
+                                  onClick={e => handleEditChatTitle(e, chat.id)}
+                                >
+                                  <Edit3 className="h-3 w-3" />
+                                </Button>
+                              </TooltipTrigger>
+                            </Tooltip>
+
+                            <Tooltip>
+                              <TooltipTrigger asChild>
+                                <Button
+                                  variant="ghost"
+                                  size="icon"
+                                  title="删除对话"
+                                  className={cn(
+                                    'h-6 w-6 text-muted-foreground flex-shrink-0',
+                                    'hover:text-destructive hover:bg-destructive/10',
+                                    'opacity-0 group-hover/item:opacity-100 transition-opacity',
+                                    'cursor-pointer',
+                                  )}
+                                  data-delete-button
+                                  onClick={e => handleDeleteChat(e, chat.id)}
+                                >
+                                  <Trash2 className="h-3 w-3" />
+                                </Button>
+                              </TooltipTrigger>
+                            </Tooltip>
+                          </div>
                         </div>
                       </div>
                     ))}

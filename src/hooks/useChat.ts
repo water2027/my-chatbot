@@ -99,6 +99,18 @@ export default function useChat(store: StoreHandler) {
     }
   }
 
+  const setTitle = (id: string, title: string): void => {
+    const chat = chatHistory[id]
+    if (!chat) {
+      return
+    }
+    chat.title = title
+    setChatHistory(prev => ({
+      ...prev,
+      [id]: chat,
+    }))
+  }
+
   useEffect(() => {
     const handleBeforeUnload = (): void => {
       store.set('chatHistory', chatHistory)
@@ -160,5 +172,6 @@ export default function useChat(store: StoreHandler) {
     chatHistory,
     submitMessage,
     content,
+    setTitle,
   }
 }
