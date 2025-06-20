@@ -8,7 +8,7 @@ export async function updateSession(request: NextRequest) {
   })
 
   if (request.nextUrl.pathname.startsWith('/auth')) {
-    return supabaseResponse;
+    return supabaseResponse
   }
 
   const supabase = createServerClient(

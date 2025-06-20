@@ -50,7 +50,9 @@ export default function Home() {
   useEffect(() => {
     if (!userProfile) {
       initialize().catch(() => {
-        router.push('/auth/login')
+        signOut().then(() => {
+          router.push('/auth/login')
+        })
       })
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -64,11 +66,14 @@ export default function Home() {
   }, [error])
 
   useEffect(() => {
-    console.log(content === '')
     if (content === '') {
-      console.log('Refreshing token...')
-      refreshToken()
+      refreshToken().catch(() => {
+        signOut().then(() => {
+          router.push('/auth/login')
+        })
+      })
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [content, refreshToken])
 
   const handleSubmit = (formData: FormData) => {

@@ -28,12 +28,8 @@ export const useAuthStore = create<AuthState & AuthActions>((set, get) => ({
   setUserProfile: userProfile => set({ userProfile }),
 
   refreshToken: async () => {
-    console.log('=== refreshToken called ===')
-    console.log('Current state:', get())
     const supabase = createClient()
-    console.log('Refreshing user profile...')
     const userId = get().user?.id
-    console.log('User ID:', userId)
     if (!userId) {
       return
     }
@@ -46,14 +42,15 @@ export const useAuthStore = create<AuthState & AuthActions>((set, get) => ({
 
       if (error) {
         console.error('Error fetching user profile:', error)
+        return Promise.reject(error)
       }
 
       const profile = data as UserProfile
       get().setUserProfile(profile)
-      console.log(profile)
     }
     catch (error) {
       console.error('Error fetching user profile:', error)
+      return Promise.reject(error)
     }
   },
 
@@ -87,6 +84,7 @@ export const useAuthStore = create<AuthState & AuthActions>((set, get) => ({
       console.error('Auth initialization error:', error)
       get().setUser(null)
       get().setUserProfile(null)
+      return Promise.reject(error)
     }
   },
 
