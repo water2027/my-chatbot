@@ -30,7 +30,7 @@ class UserService {
   async updateToken(diff: number) {
     const user = await this.getCurrentUser()
     const supabase = await createClient()
-    const { data, error } = await supabase.rpc('update_user_token', {
+    const { error } = await supabase.rpc('update_user_token', {
       user_id: user.id,
       token_diff: diff
     })
@@ -38,8 +38,6 @@ class UserService {
     if (error) {
       return Promise.reject(error)
     }
-
-    console.log(data)
   }
 }
 

@@ -40,7 +40,6 @@ export async function loginWithGoogle() {
   }
 
   if (data?.url) {
-    console.log('Google login URL:', data.url)
     redirect(data.url)
   }
   else {

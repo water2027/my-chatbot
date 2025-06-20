@@ -12,6 +12,7 @@ interface StoreHandler {
 export default function useChat(store: StoreHandler) {
   const models = ['gpt-4o-mini', 'gpt-4']
   const [model, setModel] = useState<string>(models[0])
+  let [isStreaming, setIsStreaming] = useState(false)
   const [error, setError] = useState<Error | null>(null)
   const [content, setContent] = useState<string>('')
   const [latestId, setLatestId] = useState(0)
@@ -136,7 +137,15 @@ export default function useChat(store: StoreHandler) {
 
     if (currentChat.messages[currentChat.messages.length - 1]?.role === 'user') {
       // 如果是用户发送的, 那么就需要异步请求了
-      sendToAi()
+      if (isStreaming) {
+        return
+      }
+      isStreaming = true
+      setIsStreaming(true)
+      sendToAi().then(() => {
+        isStreaming = false
+        setIsStreaming(false)
+      })
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currentChat])
@@ -173,5 +182,6 @@ export default function useChat(store: StoreHandler) {
     submitMessage,
     content,
     setTitle,
+    isStreaming,
   }
 }

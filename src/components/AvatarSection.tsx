@@ -1,6 +1,5 @@
 'use client'
 
-import type { UserProfile } from '@/types/user'
 import { Coins, LogIn, LogOut, Moon, Sun, User } from 'lucide-react'
 
 import { useTheme } from 'next-themes'
@@ -14,9 +13,11 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
+import type { User as UserProfile } from '@supabase/supabase-js'
 
 interface AvatarSectionProps {
   userProfile: UserProfile | null
+  balance: number
   onLoginClick?: () => void
   onLogoutClick?: () => void
 }
@@ -25,6 +26,7 @@ export default function AvatarSection({
   onLoginClick,
   onLogoutClick,
   userProfile,
+  balance,
 }: AvatarSectionProps) {
   const { setTheme, theme } = useTheme()
 
@@ -97,7 +99,7 @@ export default function AvatarSection({
                 <div className="flex flex-col space-y-1 leading-none">
                   <p className="text-sm font-medium">token余额</p>
                   <p className="text-xs text-muted-foreground">
-                    {userProfile.token.toLocaleString()}
+                    {balance}
                   </p>
                 </div>
               </div>

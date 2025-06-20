@@ -30,7 +30,9 @@ export default function Home() {
   const [editingChatId, setEditingChatId] = useState<string | null>(null)
   const [editingChatTitle, setEditingChatTitle] = useState('')
 
-  const { signOut, initialize, userProfile, refreshToken } = useAuthStore()
+  const user = useAuthStore(state => state.user);
+const balance = useAuthStore(state => state.balance);
+  const { signOut, initialize, refreshTokenValue, isInitialized } = useAuthStore.getState();
   const router = useRouter()
   const {
     error,
@@ -45,18 +47,16 @@ export default function Home() {
     submitMessage,
     content,
     setTitle,
+    isStreaming
   } = useChat(localStorageHandler)
 
   useEffect(() => {
-    if (!userProfile) {
-      initialize().catch(() => {
-        signOut().then(() => {
-          router.push('/auth/login')
-        })
-      })
-    }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [initialize, userProfile])
+    initialize()
+  }, [])
+  
+  useEffect(() => {
+    refreshTokenValue()
+  }, [isInitialized])
 
   useEffect(() => {
     if (error) {
@@ -66,15 +66,10 @@ export default function Home() {
   }, [error])
 
   useEffect(() => {
-    if (content === '') {
-      refreshToken().catch(() => {
-        signOut().then(() => {
-          router.push('/auth/login')
-        })
-      })
+    if (!isStreaming) {
+      refreshTokenValue()
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [content, refreshToken])
+  }, [isStreaming])
 
   const handleSubmit = (formData: FormData) => {
     const msg = formData.get('message') as string
@@ -130,7 +125,6 @@ export default function Home() {
             onClick={closeSidebar}
           />
         )}
-
         <HistoryAside
           onEditChatTitle={handleEditChatTitle}
           onDeleteChat={deleteChat}
@@ -182,7 +176,8 @@ export default function Home() {
                 <AvatarSection
                   onLoginClick={onLoginClick}
                   onLogoutClick={onLogoutClick}
-                  userProfile={userProfile}
+                  userProfile={user}
+                  balance={balance}
                 />
               </div>
             </div>
