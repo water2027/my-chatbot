@@ -140,14 +140,15 @@ export default function useChat(store: StoreHandler) {
       if (isStreaming) {
         return
       }
+      // eslint-disable-next-line react-hooks/exhaustive-deps
       isStreaming = true
+      // eslint-disable-next-line react-hooks-extra/no-direct-set-state-in-use-effect
       setIsStreaming(true)
       sendToAi().then(() => {
         isStreaming = false
         setIsStreaming(false)
       })
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currentChat])
 
   useEffect(() => {

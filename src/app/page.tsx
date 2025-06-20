@@ -30,9 +30,9 @@ export default function Home() {
   const [editingChatId, setEditingChatId] = useState<string | null>(null)
   const [editingChatTitle, setEditingChatTitle] = useState('')
 
-  const user = useAuthStore(state => state.user);
-const balance = useAuthStore(state => state.balance);
-  const { signOut, initialize, refreshTokenValue, isInitialized } = useAuthStore.getState();
+  const user = useAuthStore(state => state.user)
+  const balance = useAuthStore(state => state.balance)
+  const { signOut, initialize, refreshTokenValue, isInitialized } = useAuthStore.getState()
   const router = useRouter()
   const {
     error,
@@ -47,16 +47,16 @@ const balance = useAuthStore(state => state.balance);
     submitMessage,
     content,
     setTitle,
-    isStreaming
+    isStreaming,
   } = useChat(localStorageHandler)
 
   useEffect(() => {
     initialize()
-  }, [])
-  
+  }, [initialize])
+
   useEffect(() => {
     refreshTokenValue()
-  }, [isInitialized])
+  }, [isInitialized, refreshTokenValue])
 
   useEffect(() => {
     if (error) {
@@ -69,7 +69,7 @@ const balance = useAuthStore(state => state.balance);
     if (!isStreaming) {
       refreshTokenValue()
     }
-  }, [isStreaming])
+  }, [isStreaming, refreshTokenValue])
 
   const handleSubmit = (formData: FormData) => {
     const msg = formData.get('message') as string

@@ -1,7 +1,8 @@
 'use client'
 
-import { Coins, LogIn, LogOut, Moon, Sun, User } from 'lucide-react'
+import type { User as UserProfile } from '@supabase/supabase-js'
 
+import { Coins, LogIn, LogOut, Moon, Sun, User } from 'lucide-react'
 import { useTheme } from 'next-themes'
 import { Avatar, AvatarFallback } from '@/components/ui/avatar'
 import { Badge } from '@/components/ui/badge'
@@ -13,7 +14,6 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
-import type { User as UserProfile } from '@supabase/supabase-js'
 
 interface AvatarSectionProps {
   userProfile: UserProfile | null

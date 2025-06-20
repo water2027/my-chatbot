@@ -12,61 +12,63 @@ interface AuthState {
 interface AuthActions {
   initialize: () => void
   signOut: () => Promise<void>
-  refreshTokenValue: () => Promise<void> 
+  refreshTokenValue: () => Promise<void>
 }
 
 export const useAuthStore = create<AuthState & AuthActions>((set, get) => ({
   user: null,
-  balance: 0, 
+  balance: 0,
   isInitialized: false,
 
   refreshTokenValue: async () => {
-    const userId = get().user?.id;
+    const userId = get().user?.id
     if (!userId) {
-      return;
+      return
     }
-    
-    const supabase = createClient();
+
+    const supabase = createClient()
     try {
       const { data, error } = await supabase
         .from('users')
-        .select('token') 
+        .select('token')
         .eq('id', userId)
-        .single();
+        .single()
       if (error) {
-        console.error('Error fetching token value:', error);
-        return Promise.reject(error);
+        console.error('Error fetching token value:', error)
+        return Promise.reject(error)
       }
 
       if (data) {
         set({
-          balance: data.token ?? 0, 
-        });
+          balance: data.token ?? 0,
+        })
       }
-    } catch (error) {
-      console.error('Exception while refreshing token value:', error);
-      return Promise.reject(error);
+    }
+    catch (error) {
+      console.error('Exception while refreshing token value:', error)
+      return Promise.reject(error)
     }
   },
 
   initialize: () => {
-    if (get().isInitialized) return;
+    if (get().isInitialized)
+      return
 
-    const supabase = createClient();
+    const supabase = createClient()
     supabase.auth.onAuthStateChange(async (event, session) => {
-      const currentUser = session?.user ?? null;
-      set({ user: currentUser });
+      const currentUser = session?.user ?? null
+      set({ user: currentUser })
 
       if (event === 'SIGNED_OUT') {
-        set({ balance: 0 });
+        set({ balance: 0 })
       }
 
-      set({ isInitialized: true });
-    });
+      set({ isInitialized: true })
+    })
   },
 
   signOut: async () => {
-    const supabase = createClient();
-    await supabase.auth.signOut();
+    const supabase = createClient()
+    await supabase.auth.signOut()
   },
-}));
+}))

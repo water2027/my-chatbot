@@ -32,7 +32,7 @@ class UserService {
     const supabase = await createClient()
     const { error } = await supabase.rpc('update_user_token', {
       user_id: user.id,
-      token_diff: diff
+      token_diff: diff,
     })
 
     if (error) {
