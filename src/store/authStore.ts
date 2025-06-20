@@ -1,31 +1,61 @@
 import type { User } from '@supabase/supabase-js'
+import type { UserProfile } from '@/types/user'
 import { create } from 'zustand'
 import { createClient } from '@/utils/supabase/browser'
 
 interface AuthState {
   user: User | null
-  loading: boolean
-  isAuthenticated: boolean
+  userProfile: UserProfile | null
 }
 
 interface AuthActions {
   setUser: (user: User | null) => void
-  setLoading: (loading: boolean) => void
+  setUserProfile: (profile: UserProfile | null) => void
   initialize: () => Promise<void>
   signOut: () => Promise<void>
+  refreshToken: () => Promise<void>
 }
 
 export const useAuthStore = create<AuthState & AuthActions>((set, get) => ({
   user: null,
-  loading: true,
+  userProfile: null,
   isAuthenticated: false,
 
   setUser: user => set({
     user,
-    isAuthenticated: !!user,
   }),
 
-  setLoading: loading => set({ loading }),
+  setUserProfile: userProfile => set({ userProfile }),
+
+  refreshToken: async () => {
+    console.log('=== refreshToken called ===')
+    console.log('Current state:', get())
+    const supabase = createClient()
+    console.log('Refreshing user profile...')
+    const userId = get().user?.id
+    console.log('User ID:', userId)
+    if (!userId) {
+      return
+    }
+    try {
+      const { data, error } = await supabase
+        .from('users')
+        .select('id, token')
+        .eq('id', userId)
+        .single()
+
+      if (error) {
+        console.error('Error fetching user profile:', error)
+      }
+
+      const profile = data as UserProfile
+      get().setUserProfile(profile)
+      console.log(profile)
+    }
+    catch (error) {
+      console.error('Error fetching user profile:', error)
+    }
+  },
 
   initialize: async () => {
     const supabase = createClient()
@@ -34,22 +64,38 @@ export const useAuthStore = create<AuthState & AuthActions>((set, get) => ({
       const { data: { user } } = await supabase.auth.getUser()
       get().setUser(user)
 
-      supabase.auth.onAuthStateChange((event, session) => {
-        get().setUser(session?.user ?? null)
+      // 如果用户已登录，获取用户资料
+      if (user) {
+        await get().refreshToken()
+      }
+
+      supabase.auth.onAuthStateChange(async (event, session) => {
+        const currentUser = session?.user ?? null
+        get().setUser(currentUser)
+
+        if (currentUser) {
+          // 用户登录时获取资料
+          await get().refreshToken()
+        }
+        else {
+          // 用户登出时清除资料
+          get().setUserProfile(null)
+        }
       })
     }
     catch (error) {
       console.error('Auth initialization error:', error)
       get().setUser(null)
-    }
-    finally {
-      get().setLoading(false)
+      get().setUserProfile(null)
     }
   },
 
   signOut: async () => {
     const supabase = createClient()
     await supabase.auth.signOut()
-    set({ user: null, isAuthenticated: false })
+    set({
+      user: null,
+      userProfile: null,
+    })
   },
 }))

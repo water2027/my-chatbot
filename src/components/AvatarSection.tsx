@@ -1,8 +1,9 @@
 'use client'
 
-import { LogIn, LogOut, Moon, Sun, User } from 'lucide-react'
-import { useTheme } from 'next-themes'
+import type { UserProfile } from '@/types/user'
+import { Coins, LogIn, LogOut, Moon, Sun, User } from 'lucide-react'
 
+import { useTheme } from 'next-themes'
 import { Avatar, AvatarFallback } from '@/components/ui/avatar'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -15,15 +16,15 @@ import {
 } from '@/components/ui/dropdown-menu'
 
 interface AvatarSectionProps {
-  isOnline: boolean
+  userProfile: UserProfile | null
   onLoginClick?: () => void
   onLogoutClick?: () => void
 }
 
 export default function AvatarSection({
-  isOnline,
   onLoginClick,
   onLogoutClick,
+  userProfile,
 }: AvatarSectionProps) {
   const { setTheme, theme } = useTheme()
 
@@ -55,7 +56,7 @@ export default function AvatarSection({
             <Avatar className="h-9 w-9">
               <AvatarFallback
                 className={`text-xs font-bold transition-colors ${
-                  isOnline
+                  userProfile
                     ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-100'
                     : 'bg-muted text-muted-foreground'
                 }`}
@@ -67,7 +68,7 @@ export default function AvatarSection({
             {/* 在线状态指示器 */}
             <Badge
               className={`absolute -bottom-0 -right-0 h-3 w-3 rounded-full border-2 border-background p-0 ${
-                isOnline
+                userProfile
                   ? 'bg-green-500 hover:bg-green-500'
                   : 'bg-muted-foreground hover:bg-muted-foreground'
               }`}
@@ -79,17 +80,33 @@ export default function AvatarSection({
           <div className="flex items-center justify-start gap-2 p-2">
             <div className="flex flex-col space-y-1 leading-none">
               <p className="text-sm font-medium">
-                {isOnline ? '已登录' : '未登录'}
+                {userProfile ? '已登录' : '未登录'}
               </p>
               <p className="text-xs text-muted-foreground">
-                {isOnline ? '当前在线状态' : '点击登录'}
+                {userProfile ? '当前在线状态' : '点击登录'}
               </p>
             </div>
           </div>
 
+          {/* Token 显示区域 */}
+          {userProfile && (
+            <>
+              <DropdownMenuSeparator />
+              <div className="flex items-center justify-start gap-2 p-2">
+                <Coins className="h-4 w-4 text-amber-500" />
+                <div className="flex flex-col space-y-1 leading-none">
+                  <p className="text-sm font-medium">token余额</p>
+                  <p className="text-xs text-muted-foreground">
+                    {userProfile.token.toLocaleString()}
+                  </p>
+                </div>
+              </div>
+            </>
+          )}
+
           <DropdownMenuSeparator />
 
-          {isOnline
+          {userProfile
             ? (
                 <DropdownMenuItem onClick={onLogoutClick} className="text-red-600 focus:text-red-600">
                   <LogOut className="mr-2 h-4 w-4" />

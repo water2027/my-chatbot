@@ -30,7 +30,7 @@ export default function Home() {
   const [editingChatId, setEditingChatId] = useState<string | null>(null)
   const [editingChatTitle, setEditingChatTitle] = useState('')
 
-  const { isAuthenticated, signOut, initialize } = useAuthStore()
+  const { signOut, initialize, userProfile, refreshToken } = useAuthStore()
   const router = useRouter()
   const {
     error,
@@ -48,8 +48,13 @@ export default function Home() {
   } = useChat(localStorageHandler)
 
   useEffect(() => {
-    initialize()
-  }, [initialize])
+    if (!userProfile) {
+      initialize().catch(() => {
+        router.push('/auth/login')
+      })
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [initialize, userProfile])
 
   useEffect(() => {
     if (error) {
@@ -57,6 +62,14 @@ export default function Home() {
       console.error('Chat error:', error)
     }
   }, [error])
+
+  useEffect(() => {
+    console.log(content === '')
+    if (content === '') {
+      console.log('Refreshing token...')
+      refreshToken()
+    }
+  }, [content, refreshToken])
 
   const handleSubmit = (formData: FormData) => {
     const msg = formData.get('message') as string
@@ -162,9 +175,9 @@ export default function Home() {
 
               <div className="flex-shrink-0">
                 <AvatarSection
-                  isOnline={isAuthenticated}
                   onLoginClick={onLoginClick}
                   onLogoutClick={onLogoutClick}
+                  userProfile={userProfile}
                 />
               </div>
             </div>

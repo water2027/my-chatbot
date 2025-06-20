@@ -7,6 +7,10 @@ export async function updateSession(request: NextRequest) {
     request,
   })
 
+  if (request.nextUrl.pathname.startsWith('/auth')) {
+    return supabaseResponse;
+  }
+
   const supabase = createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
@@ -34,7 +38,6 @@ export async function updateSession(request: NextRequest) {
 
   if (
     !user
-    && !request.nextUrl.pathname.startsWith('/auth')
   ) {
     const url = request.nextUrl.clone()
     url.pathname = '/auth/login'
