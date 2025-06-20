@@ -20,6 +20,7 @@ export async function streamChatResponse(messages: Message[], model: string) {
     redirect('/auth/error?error=tokenNotEnough&error_detail=Your token is not enough, please recharge it.&redirect_uri=/')
   }
   const stream = createStreamableValue('')
+  let streamIsClosed = false
 
   ;(async () => {
     try {
@@ -44,10 +45,16 @@ export async function streamChatResponse(messages: Message[], model: string) {
     }
     catch (error) {
       console.error('Stream error:', error)
-      stream.error('Failed to stream response')
+      if (!streamIsClosed) {
+        streamIsClosed = true
+        stream.error('Failed to stream response')
+      }
     }
     finally {
-      stream.done()
+      if (!streamIsClosed) {
+        streamIsClosed = true
+        stream.done()
+      }
     }
   })()
 

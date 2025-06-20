@@ -30,18 +30,13 @@ class UserService {
 
   async updateToken(diff: number) {
     const user = await this.getCurrentUser()
-    const { error, data } = await admin.rpc('update_user_token', {
+    const { error } = await admin.rpc('update_user_token', {
       user_id: user.id,
       token_diff: diff,
     })
 
     if (error) {
       return Promise.reject(error)
-    }
-    console.log(data)
-    const { success } = data[0] as { success: boolean }
-    if (!success) {
-      // 没成功说明用得太多了, 直接扣光
     }
   }
 }
