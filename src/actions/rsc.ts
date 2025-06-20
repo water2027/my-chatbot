@@ -38,7 +38,7 @@ export async function streamChatResponse(messages: Message[], model: string) {
           const tokenUsage = chunk.usage?.total_tokens
           if (!tokenUsage && tokenUsage !== 0)
             continue
-          await UserService.updateToken(tokenUsage)
+          await UserService.updateToken(-tokenUsage)
         }
       }
     }

@@ -20,7 +20,6 @@ class UserService {
     const supabase = await createClient()
 
     const { data, error } = await supabase.from('users').select('id, token').eq('id', user.id).single()
-
     if (error) {
       throw new Error('fail to fetch userInfo')
     }
@@ -29,19 +28,18 @@ class UserService {
   }
 
   async updateToken(diff: number) {
-    if (diff <= 0)
-      return Promise.reject(new Error('diff must be greater than 0'))
-    const userInfo = await this.getUserInfo()
+    const user = await this.getCurrentUser()
     const supabase = await createClient()
-    const { error } = await supabase
-      .from('users')
-      .update({ token: userInfo.token - diff })
-      .eq('id', userInfo.id)
-      .single()
+    const { data, error } = await supabase.rpc('update_user_token', {
+      user_id: user.id,
+      token_diff: diff
+    })
 
     if (error) {
-      Promise.reject(error)
+      return Promise.reject(error)
     }
+
+    console.log(data)
   }
 }
 
